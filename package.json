@@ -1,0 +1,36 @@
+{
+    "name": "regex",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "https://github.com/sunnylost/regex.git",
+    "author": "sunnylost <sunnylost@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "serve": "rollup -w -c rollup.config.js",
+        "test": "jest"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.5.4",
+        "@babel/preset-env": "^7.5.4",
+        "babel-eslint": "^10.0.2",
+        "eslint": "^6.0.1",
+        "eslint-config-prettier": "^6.0.0",
+        "eslint-plugin-prettier": "^3.1.0",
+        "husky": "^3.0.0",
+        "jest": "^24.8.0",
+        "lint-staged": "^9.2.0",
+        "prettier": "^1.18.2",
+        "rollup": "^1.16.7",
+        "rollup-plugin-babel": "^4.3.3"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "linters": {
+            "*.js": ["eslint --fix", "git add"]
+        }
+    }
+}
