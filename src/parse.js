@@ -1,87 +1,38 @@
 //type
 import { TYPE_GROUP, TYPE_SET, TYPE_DOT, TYPE_OR, TYPE_CHAR } from './key'
+import Matcher from './matcher'
 
 const META_CHARACTERS = '()[]{}|^$.*?+-,'
 const SET_META_CHARACTERS = '[](){}|$.*?+,'
 
-class Matcher {
-    constructor({
-        type = '',
-        value = '',
-        children = [],
-        parent = null,
-        isNegate = false,
-        isFirst = false,
-        isLast = false,
-        isInRange = false,
-        isZeroOrOnce = false,
-        isZeroOrMulti = false,
-        isOnceOrMulti = false,
-        isGreedy = false,
-        index = 1
-    }) {
-        this.type = type
-        this.value = value
-        this.children = children
-        this.parent = parent
-        this.isFirst = isFirst
-        this.isLast = isLast
-        this.isNegate = isNegate
-        this.isInRange = isInRange
-        this.isZeroOrOnce = isZeroOrOnce
-        this.isZeroOrMulti = isZeroOrMulti
-        this.isOnceOrMulti = isOnceOrMulti
-        this.isGreedy = isGreedy
-        this.index = index
-        this.lastCheckIndex = 0
+function spreadSet(matcher) {
+    if (
+        matcher.type !== TYPE_SET ||
+        !matcher.children ||
+        !matcher.children.length
+    ) {
+        return
     }
 
-    execute(config, index = 0) {
-        let str = config.source
-        let isMatched = false
-        let _index = 0
+    let chars = matcher.children[0].value
+    let newChildren = []
 
-        let lastCheckIndex = (this.lastCheckIndex = index)
+    for (let i = 0; i < chars.length; i++) {
+        let c = chars[i]
 
-        switch (this.type) {
-            case TYPE_CHAR:
-                let sourceStr = str.substring(
-                    lastCheckIndex,
-                    lastCheckIndex + this.value.length
-                )
-                let checkStr = this.value
+        if (c !== '-' || i === 0) {
+            newChildren.push(v => v === c)
+        } else {
+            newChildren.pop()
+            let a = chars[i - 1]
+            let b = chars[i + 1] ? chars[i + 1].charCodeAt(1) : Infinity
+            newChildren.push(v => v.charCodeAt(0) >= a && v.charCodeAt(0) <= b)
 
-                if (config.ignoreCase) {
-                    sourceStr = sourceStr.toLowerCase()
-                    checkStr = checkStr.toLowerCase()
-                }
-
-                if (sourceStr === checkStr) {
-                    isMatched = true
-                    _index = index + this.value.length
-                } else {
-                    isMatched = false
-                    _index = index
-                }
-
-                break
-
-            case TYPE_DOT:
-                break
-        }
-
-        if (this.children && this.children.length) {
-            this.children.forEach(matcher => {
-                matcher.execute(config, _index)
-            })
-        }
-
-        return {
-            isMatched,
-            config,
-            index: _index
+            i += 1
         }
     }
+
+    matcher.children = newChildren
 }
 
 export default pattern => {
@@ -90,14 +41,13 @@ export default pattern => {
     let isNeedTransfer = false
     let captureIndex = 1
     let next = () => {}
-    let stack = []
-    let matcher = new Matcher({ type: TYPE_CHAR })
-    let curMatcher = matcher
-
-    stack.push({
-        children: [matcher]
-    })
-    curMatcher.parent = stack[0]
+    let stack = [
+        {
+            children: []
+        }
+    ]
+    let curMatcher = stack[0]
+    let matcher
 
     for (let i = 0; i < len; i++) {
         let c = pattern[i]
@@ -107,7 +57,7 @@ export default pattern => {
             continue
         }
 
-        if (isInCharacterSet && SET_META_CHARACTERS.includes(c)) {
+        if (isInCharacterSet && c !== ']' && SET_META_CHARACTERS.includes(c)) {
             curMatcher.value += c
             continue
         }
@@ -134,6 +84,7 @@ export default pattern => {
             case ']':
                 curMatcher = curMatcher.parent
                 isInCharacterSet = false
+                spreadSet(curMatcher)
                 break
             case '{':
                 break
@@ -148,16 +99,7 @@ export default pattern => {
                 matcher.parent.children.push(curMatcher)
                 break
             case '-':
-                if (isInCharacterSet) {
-                    if (curMatcher.value.length) {
-                        //TODO: not the last
-                        curMatcher.isInRange = true
-                    } else {
-                        curMatcher.value += c
-                    }
-                } else {
-                    curMatcher.value += c
-                }
+                curMatcher.value += c
                 break
             case '^':
                 if (isInCharacterSet) {

@@ -6,7 +6,7 @@
     "author": "sunnylost <sunnylost@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "serve": "rollup -w -c rollup.config.js",
+        "serve": "rollup -w -c rollup.config.js -m inline",
         "test": "jest"
     },
     "devDependencies": {
