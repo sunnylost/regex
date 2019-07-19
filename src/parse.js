@@ -24,10 +24,16 @@ function spreadSet(matcher) {
             newChildren.push(v => v === c)
         } else {
             newChildren.pop()
-            let a = chars[i - 1]
-            let b = chars[i + 1] ? chars[i + 1].charCodeAt(1) : Infinity
-            newChildren.push(v => v.charCodeAt(0) >= a && v.charCodeAt(0) <= b)
+            let a = chars[i - 1].charCodeAt(0)
+            let b = chars[i + 1] ? chars[i + 1].charCodeAt(0) : Infinity
 
+            if (a > b) {
+                throw new SyntaxError(
+                    `Invalid regular expression: /${chars}/: Range out of order in character class`
+                )
+            }
+
+            newChildren.push(v => v.charCodeAt(0) >= a && v.charCodeAt(0) <= b)
             i += 1
         }
     }
@@ -99,20 +105,16 @@ export default pattern => {
             case '}':
                 break
             case '|':
-                if (isInCharacterSet) {
-                    curMatcher.value += c
-                } else {
-                    matcher = curMatcher
-                    let parent = matcher.parent
-                    let children = parent.children
-                    curMatcher = new Matcher({
-                        type: TYPE_OR,
-                        parent: parent
-                    })
-                    children.push(curMatcher)
-                    children.splice(children.indexOf(matcher), 1)
-                    curMatcher.children.push(matcher)
-                }
+                matcher = curMatcher
+                let parent = matcher.parent
+                let children = parent.children
+                curMatcher = new Matcher({
+                    type: TYPE_OR,
+                    parent: parent
+                })
+                children.push(curMatcher)
+                children.splice(children.indexOf(matcher), 1)
+                curMatcher.children.push(matcher)
 
                 break
 
@@ -143,16 +145,12 @@ export default pattern => {
                 isNeedTransfer = true
                 break
             case '.':
-                if (isInCharacterSet) {
-                    curMatcher.value += c
-                } else {
-                    matcher = curMatcher
-                    curMatcher = new Matcher({
-                        type: TYPE_DOT,
-                        parent: matcher.parent
-                    })
-                    matcher.parent.children.push(curMatcher)
-                }
+                matcher = curMatcher
+                curMatcher = new Matcher({
+                    type: TYPE_DOT,
+                    parent: matcher.parent
+                })
+                matcher.parent.children.push(curMatcher)
 
                 break
             case ',':

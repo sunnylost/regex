@@ -32,5 +32,6 @@
         "linters": {
             "*.js": ["eslint --fix", "git add"]
         }
-    }
+    },
+    "browserslist": ["> 10%"]
 }
