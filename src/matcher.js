@@ -1,4 +1,4 @@
-import { TYPE_CHAR, TYPE_DOT, TYPE_SET } from './key'
+import { TYPE_CHAR, TYPE_DOT, TYPE_OR, TYPE_SET } from './key'
 
 class Matcher {
     constructor({
@@ -39,6 +39,7 @@ class Matcher {
         let matchedStr
 
         let lastCheckIndex = (this.lastCheckIndex = index)
+        let children = this.children
 
         switch (this.type) {
             case TYPE_CHAR:
@@ -67,22 +68,29 @@ class Matcher {
             case TYPE_SET:
                 let isNegative = this.isNegate
                 let checkChar = str[lastCheckIndex]
-                isMatched = this.children.some(v => {
+                isMatched = children.some(v => {
                     let result = v(checkChar)
 
-                    if (isNegative) {
-                        if (!result) {
-                            return true
-                        }
-                    } else {
-                        if (result) {
-                            return true
-                        }
+                    if ((isNegative && !result) || result) {
+                        return true
                     }
                 })
 
                 if (isMatched) {
                     matchedStr = checkChar
+                }
+                break
+
+            case TYPE_OR:
+                for (let i = 0; i < children.length; i++) {
+                    let matcher = children[i]
+                    let result = matcher.execute(config, lastCheckIndex)
+
+                    if (result.isMatched) {
+                        isMatched = true
+                        matchedStr = result.matchedStr
+                        break
+                    }
                 }
                 break
 

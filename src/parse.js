@@ -35,6 +35,11 @@ function spreadSet(matcher) {
     matcher.children = newChildren
 }
 
+/**
+ * construct a matcher tree
+ * @param pattern
+ * @returns {Array}
+ */
 export default pattern => {
     let len = pattern.length
     let isInCharacterSet = false
@@ -91,16 +96,23 @@ export default pattern => {
             case '}':
                 break
             case '|':
-                matcher = curMatcher
-                curMatcher = new Matcher({
-                    type: TYPE_CHAR,
-                    parent: matcher.parent
-                })
-                matcher.parent.children.push(curMatcher)
+                if (isInCharacterSet) {
+                    curMatcher.value += c
+                } else {
+                    matcher = curMatcher
+                    let parent = matcher.parent
+                    let children = parent.children
+                    curMatcher = new Matcher({
+                        type: TYPE_OR,
+                        parent: parent
+                    })
+                    children.push(curMatcher)
+                    children.splice(children.indexOf(matcher), 1)
+                    curMatcher.children.push(matcher)
+                }
+
                 break
-            case '-':
-                curMatcher.value += c
-                break
+
             case '^':
                 if (isInCharacterSet) {
                     if (curMatcher.value) {

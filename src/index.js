@@ -41,14 +41,10 @@ class Re {
 
         this.source = source
         let states = this.states
-        let isMatched = true
-        let matchResult
+        let matchResult = []
         let len = source.length
-        this.matchStatus = []
 
-        Loop: for (let i = 0; i < source.length; i++) {
-            matchResult = []
-
+        Loop: for (let i = 0; i < len; i++) {
             for (let j = 0; j < states.length; j++) {
                 let state = states[j]
                 let result = state.execute(this, i)
@@ -56,18 +52,23 @@ class Re {
                 if (!result.isMatched) {
                     continue Loop
                 } else {
-                    matchResult.push(result)
+                    matchResult.push(result.matchedStr)
                 }
             }
 
             //TODO: [] condition
             if (matchResult.length === states.length) {
-                return matchResult
+                break Loop
             }
         }
 
-        //TODO
-        return matchResult.length ? matchResult : null
+        //TODO: groups, index
+        if (matchResult.length) {
+            matchResult.input = source
+            return matchResult
+        } else {
+            return null
+        }
     }
 }
 
