@@ -7,12 +7,13 @@
     "license": "MIT",
     "scripts": {
         "serve": "rollup -w -c rollup.config.js -m inline",
-        "test": "jest"
+        "test": "jest --watchAll"
     },
     "devDependencies": {
         "@babel/core": "^7.5.4",
         "@babel/preset-env": "^7.5.4",
         "babel-eslint": "^10.0.2",
+        "babel-jest": "^24.8.0",
         "eslint": "^6.0.1",
         "eslint-config-prettier": "^6.0.0",
         "eslint-plugin-prettier": "^3.1.0",
@@ -33,5 +34,14 @@
             "*.js": ["eslint --fix", "git add"]
         }
     },
-    "browserslist": ["> 10%"]
+    "browserslist": ["> 10%"],
+    "jest": {
+        "verbose": true,
+        "testRegex": "test/.*[js]",
+        "testPathIgnorePatterns": ["/node_modules/"],
+        "transform": {
+            "^.+\\.js$": "babel-jest"
+        },
+        "transformIgnorePatterns": ["/node_modules/"]
+    }
 }

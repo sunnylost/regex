@@ -1,4 +1,4 @@
-let Re = require('../index')
+import Re from '../src/index'
 
 function randomStr(avoidStr) {
     let maxLen = 10
