@@ -84,6 +84,9 @@ export default pattern => {
                 matcher = curMatcher
                 curMatcher = new Matcher({ type: TYPE_SET, parent: matcher })
                 matcher.children.push(curMatcher)
+                matcher = new Matcher({ type: TYPE_CHAR, parent: curMatcher })
+                curMatcher.children.push(matcher)
+                curMatcher = matcher
                 isInCharacterSet = true
                 break
             case ']':
@@ -140,9 +143,17 @@ export default pattern => {
                 isNeedTransfer = true
                 break
             case '.':
-                matcher = curMatcher
-                curMatcher = new Matcher({ type: TYPE_DOT, parent: matcher })
-                matcher.children.push(curMatcher)
+                if (isInCharacterSet) {
+                    curMatcher.value += c
+                } else {
+                    matcher = curMatcher
+                    curMatcher = new Matcher({
+                        type: TYPE_DOT,
+                        parent: matcher.parent
+                    })
+                    matcher.parent.children.push(curMatcher)
+                }
+
                 break
             case ',':
                 break

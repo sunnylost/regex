@@ -45,13 +45,15 @@ class Re {
         let len = source.length
 
         Loop: for (let i = 0; i < len; i++) {
+            let preMatchedIndex = i
             for (let j = 0; j < states.length; j++) {
                 let state = states[j]
-                let result = state.execute(this, i)
+                let result = state.execute(this, preMatchedIndex)
 
                 if (!result.isMatched) {
                     continue Loop
                 } else {
+                    preMatchedIndex += result.matchedStr.length
                     matchResult.push(result.matchedStr)
                 }
             }
@@ -63,9 +65,11 @@ class Re {
         }
 
         //TODO: groups, index
+        //TODO: global
         if (matchResult.length) {
-            matchResult.input = source
-            return matchResult
+            let result = [matchResult.join('')]
+            result.input = source
+            return result
         } else {
             return null
         }

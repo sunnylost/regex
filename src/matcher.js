@@ -1,5 +1,9 @@
 import { TYPE_CHAR, TYPE_DOT, TYPE_OR, TYPE_SET } from './key'
 
+let isDotMatched = c => {
+    return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
+}
+
 class Matcher {
     constructor({
         type = '',
@@ -40,6 +44,8 @@ class Matcher {
 
         let lastCheckIndex = (this.lastCheckIndex = index)
         let children = this.children
+        let checkStr
+        let checkChar
 
         switch (this.type) {
             case TYPE_CHAR:
@@ -47,7 +53,7 @@ class Matcher {
                     lastCheckIndex,
                     lastCheckIndex + this.value.length
                 )
-                let checkStr = this.value
+                checkStr = this.value
 
                 if (config.ignoreCase) {
                     sourceStr = sourceStr.toLowerCase()
@@ -67,7 +73,7 @@ class Matcher {
 
             case TYPE_SET:
                 let isNegative = this.isNegate
-                let checkChar = str[lastCheckIndex]
+                checkChar = str[lastCheckIndex]
                 isMatched = children.some(v => {
                     let result = v(checkChar)
 
@@ -95,6 +101,12 @@ class Matcher {
                 break
 
             case TYPE_DOT:
+                checkChar = str[lastCheckIndex]
+
+                if (isDotMatched(checkStr)) {
+                    isMatched = true
+                    matchedStr = checkChar
+                }
                 break
         }
 
