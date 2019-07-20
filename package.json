@@ -12,6 +12,7 @@
     "devDependencies": {
         "@babel/core": "^7.5.4",
         "@babel/preset-env": "^7.5.4",
+        "@types/jest": "^24.0.15",
         "babel-eslint": "^10.0.2",
         "babel-jest": "^24.8.0",
         "eslint": "^6.0.1",
@@ -31,17 +32,26 @@
     },
     "lint-staged": {
         "linters": {
-            "*.js": ["eslint --fix", "git add"]
+            "*.js": [
+                "eslint --fix",
+                "git add"
+            ]
         }
     },
-    "browserslist": ["> 10%"],
+    "browserslist": [
+        "> 10%"
+    ],
     "jest": {
         "verbose": true,
         "testRegex": "test/.*[js]",
-        "testPathIgnorePatterns": ["/node_modules/"],
+        "testPathIgnorePatterns": [
+            "/node_modules/"
+        ],
         "transform": {
             "^.+\\.js$": "babel-jest"
         },
-        "transformIgnorePatterns": ["/node_modules/"]
+        "transformIgnorePatterns": [
+            "/node_modules/"
+        ]
     }
 }

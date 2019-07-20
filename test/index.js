@@ -1,36 +1,21 @@
 import Re from '../src/index'
 
-function randomStr(avoidStr) {
-    let maxLen = 10
-    let str = ''
+/**
+ * comes from https://github.com/tc39/test262/tree/master/test/built-ins/RegExp
+ */
 
-    for (let i = 0; i < maxLen; i++) {
-        str += String.fromCharCode(97 + Math.floor(26 * Math.random()))
+test('SyntaxError was thrown when max is finite and less than min', () => {
+    expect(() => {
+        new Re('0{2,1}')
+    }).toThrow('numbers out of order in {} quantifier')
+})
+
+test(
+    "SyntaxError was thrown when one character in CharSet 'A'\n" +
+        "    greater than one character in CharSet 'B' ",
+    () => {
+        expect(() => {
+            new Re('^[z-a]$')
+        }).toThrow('Range out of order in character class')
     }
-
-    return str
-}
-
-test('single character', () => {
-    let matchedCharacter = 'a'
-    let re = new Re(matchedCharacter)
-    expect(re.match(matchedCharacter)).toContain(matchedCharacter)
-})
-
-test('multiple character', () => {
-    let matchedCharacter = randomStr()
-    let re = new Re(matchedCharacter)
-    expect(re.match(matchedCharacter)).toContain(matchedCharacter)
-    expect(re.match(randomStr(matchedCharacter) + matchedCharacter)).toContain(
-        matchedCharacter
-    )
-    expect(re.match(matchedCharacter) + randomStr(matchedCharacter)).toContain(
-        matchedCharacter
-    )
-})
-
-test('no match', () => {
-    let matchedCharacter = 'a'
-    let re = new Re(matchedCharacter)
-    expect(re.match('x')).toBe(null)
-})
+)

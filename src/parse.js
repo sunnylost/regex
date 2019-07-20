@@ -59,9 +59,11 @@ export default pattern => {
     ]
     let curMatcher = stack[0]
     let matcher
+    let i
+    let c
 
-    for (let i = 0; i < len; i++) {
-        let c = pattern[i]
+    for (i = 0; i < len; i++) {
+        c = pattern[i]
 
         if (isNeedTransfer && META_CHARACTERS.includes(c)) {
             curMatcher.value += c
@@ -101,8 +103,8 @@ export default pattern => {
                 spreadSet(curMatcher)
                 break
             case '{':
-                break
-            case '}':
+                i += 1
+                consumeQuantifiers()
                 break
             case '|':
                 matcher = curMatcher
@@ -182,4 +184,57 @@ export default pattern => {
     }
 
     return stack[0].children
+
+    function consumeQuantifiers() {
+        let min = ''
+        let max = ''
+        let tmp = ''
+
+        while (i < len) {
+            let c = pattern[i]
+
+            if (c === '}') {
+                max = tmp.trim()
+
+                if (!min.length) {
+                    min = 0
+                } else {
+                    min = parseInt(min, 10)
+                }
+
+                if (!max.length) {
+                    max = Infinity
+                } else {
+                    max = parseInt(max, 10)
+                }
+
+                if (min !== min || max !== max) {
+                    return //not valid
+                }
+
+                if (max < min) {
+                    throw new SyntaxError(
+                        `Invalid regular expression: /${pattern}/: numbers out of order in {} quantifier`
+                    )
+                }
+
+                curMatcher.quantifier = {
+                    min,
+                    max
+                }
+                return
+            }
+
+            tmp += c
+
+            if (c === ',') {
+                min = tmp.trim()
+                tmp = ''
+            }
+
+            i++
+        }
+
+        console.log('c = ', c)
+    }
 }
