@@ -43,8 +43,9 @@ class Re {
         let states = this.states
         let matchResult = []
         let len = source.length
+        let i = 0
 
-        Loop: for (let i = 0; i < len; i++) {
+        Loop: for (; i < len; i++) {
             let preMatchedIndex = i
             for (let j = 0; j < states.length; j++) {
                 let state = states[j]
@@ -63,16 +64,21 @@ class Re {
                 break Loop
             }
         }
-
-        //TODO: groups, index
-        //TODO: global
+        //TODO: groups, global
         if (matchResult.length) {
             let result = [matchResult.join('')]
+            result.index = i
             result.input = source
             return result
         } else {
             return null
         }
+    }
+
+    test(source) {
+        let result = this.match(source)
+
+        return !!(result && result.length)
     }
 }
 
