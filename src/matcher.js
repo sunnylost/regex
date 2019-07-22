@@ -18,6 +18,7 @@ class Matcher {
         isZeroOrMulti = false,
         isOnceOrMulti = false,
         isGreedy = false,
+        groupIndex = '',
         index = 1
     }) {
         this.type = type
@@ -32,6 +33,7 @@ class Matcher {
         this.isZeroOrMulti = isZeroOrMulti
         this.isOnceOrMulti = isOnceOrMulti
         this.isGreedy = isGreedy
+        this.groupIndex = groupIndex
         this.index = index
         this.lastCheckIndex = 0
     }

@@ -51,9 +51,11 @@ export default pattern => {
     let isInCharacterSet = false
     let isNeedTransfer = false
     let captureIndex = 1
+    let groups = {}
     let next = () => {}
     let stack = [
         {
+            isRoot: true,
             children: []
         }
     ]
@@ -61,6 +63,8 @@ export default pattern => {
     let matcher
     let i
     let c
+    let parent
+    let children
 
     for (i = 0; i < len; i++) {
         c = pattern[i]
@@ -74,19 +78,45 @@ export default pattern => {
             curMatcher.value += c
             continue
         }
-
+        // debugger
         switch (c) {
             case '(':
-                matcher = curMatcher
+                if (
+                    curMatcher.isRoot ||
+                    (curMatcher.type === TYPE_GROUP && !curMatcher.isClosed) ||
+                    curMatcher.type === TYPE_OR
+                ) {
+                    children = curMatcher.children
+                    parent = curMatcher
+                } else {
+                    children = curMatcher.parent.children
+                    parent = curMatcher.parent
+                }
+
                 curMatcher = new Matcher({
                     type: TYPE_GROUP,
-                    parent: matcher,
-                    index: captureIndex++
+                    parent,
+                    groupIndex: captureIndex++
                 })
-                matcher.parent.children.push(curMatcher)
+
+                children.push(curMatcher)
+                groups[curMatcher.groupIndex] = curMatcher
                 break
             case ')':
-                curMatcher = curMatcher.parent
+                // debugger
+                while (1) {
+                    if (curMatcher.isRoot) {
+                        break
+                    }
+
+                    curMatcher = curMatcher.parent
+
+                    if (curMatcher.type === TYPE_GROUP) {
+                        curMatcher.isClosed = true
+                        break
+                    }
+                }
+
                 break
             case '[':
                 matcher = curMatcher
@@ -108,8 +138,8 @@ export default pattern => {
                 break
             case '|':
                 matcher = curMatcher
-                let parent = matcher.parent
-                let children = parent.children
+                parent = matcher.parent
+                children = parent.children
                 curMatcher = new Matcher({
                     type: TYPE_OR,
                     parent: parent
