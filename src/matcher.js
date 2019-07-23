@@ -1,7 +1,23 @@
-import { TYPE_CHAR, TYPE_DOT, TYPE_GROUP, TYPE_OR, TYPE_SET } from './key'
+import {
+    TYPE_CHAR,
+    TYPE_DOT,
+    TYPE_GROUP,
+    TYPE_OR,
+    TYPE_SET,
+    TYPE_SPECIAL_CHAR
+} from './key'
 
 let isDotMatched = c => {
     return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
+}
+
+let isNumber = c => {
+    let code = c.charCodeAt(0)
+    return code >= 48 && code <= 57
+}
+
+let specialCharMatcher = {
+    d: isNumber
 }
 
 class Matcher {
@@ -128,6 +144,15 @@ class Matcher {
                         matchedStr = undefined
                         break
                     }
+                }
+                break
+
+            case TYPE_SPECIAL_CHAR:
+                let checkChar = str[lastCheckIndex]
+                isMatched = specialCharMatcher[this.value](checkChar)
+
+                if (isMatched) {
+                    matchedStr = checkChar
                 }
                 break
         }

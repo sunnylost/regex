@@ -47,6 +47,7 @@ class Re {
 
         Loop: for (; i < len; i++) {
             let preMatchedIndex = i
+
             for (let j = 0; j < states.length; j++) {
                 let state = states[j]
                 let result = state.execute(this, preMatchedIndex)
@@ -64,6 +65,7 @@ class Re {
                 break Loop
             }
         }
+
         //TODO: groups, global
         if (matchResult.length) {
             let result = [matchResult.join('')]

@@ -1,9 +1,17 @@
 //type
-import { TYPE_GROUP, TYPE_SET, TYPE_DOT, TYPE_OR, TYPE_CHAR } from './key'
+import {
+    TYPE_GROUP,
+    TYPE_SET,
+    TYPE_DOT,
+    TYPE_OR,
+    TYPE_CHAR,
+    TYPE_SPECIAL_CHAR
+} from './key'
 import Matcher from './matcher'
 
 const META_CHARACTERS = '()[]{}|^$.*?+-,'
 const SET_META_CHARACTERS = '[](){}|$.*?+,'
+const SPECIAL_TRANSFER = 'bBdDsSwWtrnvf0'
 
 function spreadSet(matcher) {
     if (
@@ -41,6 +49,14 @@ function spreadSet(matcher) {
     matcher.children = newChildren
 }
 
+function isContainerMatcher(matcher) {
+    return (
+        matcher.isRoot ||
+        (matcher.type === TYPE_GROUP && !matcher.isClosed) ||
+        matcher.type === TYPE_OR
+    )
+}
+
 /**
  * construct a matcher tree
  * @param pattern
@@ -49,10 +65,8 @@ function spreadSet(matcher) {
 export default pattern => {
     let len = pattern.length
     let isInCharacterSet = false
-    let isNeedTransfer = false
     let captureIndex = 1
     let groups = {}
-    let next = () => {}
     let stack = [
         {
             isRoot: true,
@@ -68,11 +82,7 @@ export default pattern => {
 
     for (i = 0; i < len; i++) {
         c = pattern[i]
-
-        if (isNeedTransfer && META_CHARACTERS.includes(c)) {
-            curMatcher.value += c
-            continue
-        }
+        // debugger
 
         if (isInCharacterSet && c !== ']' && SET_META_CHARACTERS.includes(c)) {
             curMatcher.value += c
@@ -81,11 +91,7 @@ export default pattern => {
         // debugger
         switch (c) {
             case '(':
-                if (
-                    curMatcher.isRoot ||
-                    (curMatcher.type === TYPE_GROUP && !curMatcher.isClosed) ||
-                    curMatcher.type === TYPE_OR
-                ) {
+                if (isContainerMatcher(curMatcher)) {
                     children = curMatcher.children
                     parent = curMatcher
                 } else {
@@ -133,7 +139,7 @@ export default pattern => {
                 spreadSet(curMatcher)
                 break
             case '{':
-                i += 1
+                i++
                 consumeQuantifiers()
                 break
             case '|':
@@ -174,7 +180,8 @@ export default pattern => {
                 curMatcher.isZeroOrOnce = true
                 break
             case '\\': //TODO: \\\\
-                isNeedTransfer = true
+                i++
+                consumeTransfer()
                 break
             case '.':
                 matcher = curMatcher
@@ -184,8 +191,6 @@ export default pattern => {
                 })
                 matcher.parent.children.push(curMatcher)
 
-                break
-            case ',':
                 break
             default:
                 if (curMatcher.type === TYPE_CHAR) {
@@ -200,16 +205,6 @@ export default pattern => {
 
                     matcher.children.push(curMatcher)
                 }
-        }
-
-        next()
-
-        if (isNeedTransfer) {
-            next = () => {
-                isNeedTransfer = false
-            }
-        } else {
-            next = () => {}
         }
     }
 
@@ -267,7 +262,30 @@ export default pattern => {
 
             i++
         }
+    }
 
-        console.log('c = ', c)
+    function consumeTransfer() {
+        let c = pattern[i]
+
+        if (SPECIAL_TRANSFER.includes(c)) {
+            //TODO
+            let parent
+
+            if (isContainerMatcher(curMatcher)) {
+                parent = curMatcher
+            } else {
+                parent = curMatcher.parent
+            }
+
+            parent.children.push(
+                (curMatcher = new Matcher({
+                    type: TYPE_SPECIAL_CHAR,
+                    parent,
+                    value: c
+                }))
+            )
+        } else {
+            //TODO
+        }
     }
 }
