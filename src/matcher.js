@@ -1,4 +1,4 @@
-import { TYPE_CHAR, TYPE_DOT, TYPE_OR, TYPE_SET } from './key'
+import { TYPE_CHAR, TYPE_DOT, TYPE_GROUP, TYPE_OR, TYPE_SET } from './key'
 
 let isDotMatched = c => {
     return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
@@ -46,9 +46,10 @@ class Matcher {
 
         let lastCheckIndex = (this.lastCheckIndex = index)
         let children = this.children
+        let childrenLen = children.length
         let checkStr
         let checkChar
-
+        // debugger
         switch (this.type) {
             case TYPE_CHAR:
                 let sourceStr = str.substring(
@@ -76,21 +77,22 @@ class Matcher {
             case TYPE_SET:
                 let isNegative = this.isNegate
                 checkChar = str[lastCheckIndex]
-                isMatched = children.some(v => {
-                    let result = v(checkChar)
+
+                for (let i = 0; i < childrenLen; i++) {
+                    let matcher = children[i]
+                    let result = matcher(checkChar)
 
                     if ((isNegative && !result) || result) {
-                        return true
+                        //match
+                        matchedStr = checkChar
+                        break
                     }
-                })
-
-                if (isMatched) {
-                    matchedStr = checkChar
                 }
+
                 break
 
             case TYPE_OR:
-                for (let i = 0; i < children.length; i++) {
+                for (let i = 0; i < childrenLen; i++) {
                     let matcher = children[i]
                     let result = matcher.execute(config, lastCheckIndex)
 
@@ -110,14 +112,32 @@ class Matcher {
                     matchedStr = checkChar
                 }
                 break
+
+            case TYPE_GROUP:
+                for (let i = 0; i < childrenLen; i++) {
+                    let matcher = children[i]
+                    let result = matcher.execute(config, lastCheckIndex)
+                    // debugger
+                    if (result.isMatched) {
+                        isMatched = true
+                        matchedStr = (matchedStr || '') + result.matchedStr
+                        lastCheckIndex += result.matchedStr.length
+                        break
+                    } else {
+                        isMatched = false
+                        matchedStr = undefined
+                        break
+                    }
+                }
+                break
         }
 
-        return {
+        return (this.__matchResult = {
             isMatched,
             config,
             matchedStr,
             index: _index
-        }
+        })
     }
 }
 

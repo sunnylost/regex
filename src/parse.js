@@ -213,7 +213,10 @@ export default pattern => {
         }
     }
 
-    return stack[0].children
+    return {
+        states: stack[0].children,
+        groups
+    }
 
     function consumeQuantifiers() {
         let min = ''

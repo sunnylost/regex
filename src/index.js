@@ -31,7 +31,7 @@ class Re {
     }
 
     parseStates() {
-        this.states = Parse(this.pattern)
+        ;({ states: this.states, groups: this.groups } = Parse(this.pattern))
     }
 
     match(source) {
@@ -67,6 +67,14 @@ class Re {
         //TODO: groups, global
         if (matchResult.length) {
             let result = [matchResult.join('')]
+
+            if (this.groups) {
+                Object.values(this.groups).forEach(v => {
+                    let r = v.__matchResult
+                    result.push(r && r.isMatched ? r.matchedStr : undefined)
+                })
+            }
+
             result.index = i
             result.input = source
             return result
