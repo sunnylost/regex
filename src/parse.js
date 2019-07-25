@@ -57,6 +57,13 @@ function isContainerMatcher(matcher) {
     )
 }
 
+//TODO
+function isQuantifierValid(matcher, quantifier) {
+    if (matcher.isRoot || matcher.quantifier) {
+        throw new Error('Nothing to repeat')
+    }
+}
+
 /**
  * construct a matcher tree
  * @param pattern
@@ -139,6 +146,7 @@ export default pattern => {
                 spreadSet(curMatcher)
                 break
             case '{':
+                isQuantifierValid(curMatcher, c)
                 i++
                 consumeQuantifiers()
                 break
@@ -171,13 +179,25 @@ export default pattern => {
                 curMatcher.isLast = true
                 break
             case '+':
-                curMatcher.isOnceOrMulti = true
+                isQuantifierValid(curMatcher, c)
+                curMatcher.quantifier = {
+                    min: 1,
+                    max: Infinity
+                }
                 break
             case '*':
-                curMatcher.isZeroOrMulti = true
+                isQuantifierValid(curMatcher, c)
+                curMatcher.quantifier = {
+                    min: 0,
+                    max: Infinity
+                }
                 break
             case '?':
-                curMatcher.isZeroOrOnce = true
+                isQuantifierValid(curMatcher, c)
+                curMatcher.quantifier = {
+                    min: 0,
+                    max: 1
+                }
                 break
             case '\\': //TODO: \\\\
                 i++

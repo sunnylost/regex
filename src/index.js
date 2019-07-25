@@ -12,6 +12,7 @@ class Re {
         this.pattern = pattern
         this.flags = flags || ''
         this.lastIndex = 0
+        this.traceStack = []
         this.parseFlags()
         this.parseStates()
     }

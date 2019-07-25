@@ -19,12 +19,3 @@ test(
         }).toThrow('Range out of order in character class')
     }
 )
-
-test('The | regular expression operator separates two alternatives', () => {
-    let re = new Re('a|ab')
-    let result = re.match('abc')
-
-    expect(result[0]).toBe('a')
-    expect(result.index).toBe(0)
-    expect(result.input).toBe('abc')
-})
