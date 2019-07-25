@@ -223,7 +223,11 @@ export default pattern => {
                         value: c
                     })
 
-                    matcher.children.push(curMatcher)
+                    if (isContainerMatcher(matcher)) {
+                        matcher.children.push(curMatcher)
+                    } else {
+                        matcher.parent.children.push(curMatcher)
+                    }
                 }
         }
     }
@@ -237,6 +241,7 @@ export default pattern => {
         let min = ''
         let max = ''
         let tmp = ''
+        let hasDot = false
 
         while (i < len) {
             let c = pattern[i]
@@ -254,6 +259,10 @@ export default pattern => {
                     max = Infinity
                 } else {
                     max = parseInt(max, 10)
+                }
+
+                if (!hasDot) {
+                    min = max
                 }
 
                 if (min !== min || max !== max) {
@@ -276,6 +285,7 @@ export default pattern => {
             tmp += c
 
             if (c === ',') {
+                hasDot = true
                 min = tmp.trim()
                 tmp = ''
             }

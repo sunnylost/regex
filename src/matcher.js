@@ -30,10 +30,7 @@ class Matcher {
         isFirst = false,
         isLast = false,
         isInRange = false,
-        isZeroOrOnce = false,
-        isZeroOrMulti = false,
-        isOnceOrMulti = false,
-        isGreedy = false,
+        isGreedy = true,
         groupIndex = '',
         index = 1
     }) {
@@ -45,9 +42,6 @@ class Matcher {
         this.isLast = isLast
         this.isNegate = isNegate
         this.isInRange = isInRange
-        this.isZeroOrOnce = isZeroOrOnce
-        this.isZeroOrMulti = isZeroOrMulti
-        this.isOnceOrMulti = isOnceOrMulti
         this.isGreedy = isGreedy
         this.groupIndex = groupIndex
         this.index = index
@@ -55,10 +49,92 @@ class Matcher {
     }
 
     execute(config, index = 0) {
+        let processState = config.processState
+        let traceStack = config.traceStack
+        let localTrackStack = []
+        let quantifier = this.quantifier
+
+        if (!quantifier) {
+            return this.match(config, index)
+        }
+
+        let min = quantifier.min
+        let max = quantifier.max
+        let offset = max - min
+
+        //TODO
+        if (this.isGreedy) {
+            if (processState === 0) {
+                // debugger
+                let leastMatchResult = {
+                    isMatched: true,
+                    matchedStr: '',
+                    index
+                }
+
+                while (min--) {
+                    let result = this.match(config, index)
+
+                    if (result.isMatched) {
+                        index += result.matchedStr.length
+                        leastMatchResult.matchedStr += result.matchedStr
+                        leastMatchResult.index = index
+                    } else {
+                        //match failed
+                        return {
+                            isMatched: false
+                        }
+                    }
+                }
+
+                // debugger
+                while (offset--) {
+                    let result = this.match(config, index)
+
+                    if (result.isMatched) {
+                        localTrackStack.push(result)
+                        index += result.matchedStr.length
+                        min++
+                    } else {
+                        if (localTrackStack.length) {
+                            return localTrackStack.pop()
+                        } else {
+                            return leastMatchResult
+                        }
+                    }
+                }
+
+                return leastMatchResult
+            } else {
+                //TODO
+            }
+        } else {
+            if (min === 0) {
+                traceStack.push({
+                    matcher: this
+                })
+                return (this.__matchResult = {
+                    isMatched: true,
+                    config,
+                    matchedStr: '',
+                    index
+                })
+            }
+        }
+    }
+
+    match(config, index = 0) {
         let str = config.source
+        let maxIndex = str.length
         let isMatched = false
         let _index = 0
         let matchedStr
+        // debugger
+        if (index >= maxIndex) {
+            return {
+                isMatched: false
+            }
+        }
 
         let lastCheckIndex = (this.lastCheckIndex = index)
         let children = this.children
@@ -100,6 +176,7 @@ class Matcher {
 
                     if ((isNegative && !result) || result) {
                         //match
+                        isMatched = true
                         matchedStr = checkChar
                         break
                     }
@@ -148,7 +225,7 @@ class Matcher {
                 break
 
             case TYPE_SPECIAL_CHAR:
-                let checkChar = str[lastCheckIndex]
+                checkChar = str[lastCheckIndex]
                 isMatched = specialCharMatcher[this.value](checkChar)
 
                 if (isMatched) {

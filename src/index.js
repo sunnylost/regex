@@ -12,6 +12,7 @@ class Re {
         this.pattern = pattern
         this.flags = flags || ''
         this.lastIndex = 0
+        this.processState = 0 // TODO: 0-normal, 1-backtracking
         this.traceStack = []
         this.parseFlags()
         this.parseStates()
@@ -49,11 +50,14 @@ class Re {
         Loop: for (; i < len; i++) {
             let preMatchedIndex = i
 
+            matchResult.length = 0
+
             for (let j = 0; j < states.length; j++) {
                 let state = states[j]
                 let result = state.execute(this, preMatchedIndex)
-
+                // debugger
                 if (!result.isMatched) {
+                    matchResult.length = 0
                     continue Loop
                 } else {
                     preMatchedIndex += result.matchedStr.length
