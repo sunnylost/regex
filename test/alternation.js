@@ -22,13 +22,53 @@ test('15.10.2.3_A1_T2', () => {
     expect(result).toEqual(expected)
 })
 
-test('15.10.2.3_A1_T3', () => {
+test('15.10.2.3_A1_T4', () => {
     let re = new Re('\\d{3}|[a-z]{4}')
-    let source = '2, 12 and of course repeat 12'
+    let source = '2, 12 and 234 AND of course repeat 12'
     let result = re.match(source)
 
-    let expected = ['cour']
-    expected.index = 13
+    let expected = ['234']
+    expected.index = 10
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T5', () => {
+    let re = new Re('\\d{3}|[a-z]{4}')
+    let source = '2, 12 and 23 AND 0.00.1'
+    expect(re.test(source)).toBe(false)
+})
+
+test('15.10.2.3_A1_T6', () => {
+    let re = new Re('ab|cd|ef', 'i')
+    let source = 'AEKFCD'
+    let result = re.match(source)
+
+    let expected = ['CD']
+    expected.index = 4
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T7', () => {
+    let re = new Re('ab|cd|ef')
+    let source = 'AEKFCD'
+    expect(re.test(source)).toBe(false)
+})
+
+test('15.10.2.3_A1_T8', () => {
+    let re = new Re('(?:ab|cd)+|ef', 'i')
+    let source = 'AEKFCD'
+    let result = re.match(source)
+
+    let expected = ['CD']
+    expected.index = 4
     expected.input = source
 
     expect(result.length).toBe(expected.length)

@@ -151,16 +151,16 @@ class Matcher {
                 checkStr = this.value
 
                 if (config.ignoreCase) {
-                    sourceStr = sourceStr.toLowerCase()
-                    checkStr = checkStr.toLowerCase()
+                    isMatched =
+                        sourceStr.toLowerCase() === checkStr.toLowerCase()
+                } else {
+                    isMatched = sourceStr === checkStr
                 }
 
-                if (sourceStr === checkStr) {
-                    isMatched = true
+                if (isMatched) {
                     _index = index + this.value.length
-                    matchedStr = checkStr
+                    matchedStr = sourceStr
                 } else {
-                    isMatched = false
                     _index = index
                 }
 

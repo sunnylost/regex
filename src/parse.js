@@ -106,14 +106,23 @@ export default pattern => {
                     parent = curMatcher.parent
                 }
 
-                curMatcher = new Matcher({
-                    type: TYPE_GROUP,
-                    parent,
-                    groupIndex: captureIndex++
-                })
+                if (expect('?:')) {
+                    i += 2
+                    curMatcher = new Matcher({
+                        type: TYPE_GROUP,
+                        parent
+                    })
+                } else {
+                    curMatcher = new Matcher({
+                        type: TYPE_GROUP,
+                        parent,
+                        groupIndex: captureIndex++
+                    })
+
+                    groups[curMatcher.groupIndex] = curMatcher
+                }
 
                 children.push(curMatcher)
-                groups[curMatcher.groupIndex] = curMatcher
                 break
             case ')':
                 // debugger
@@ -317,5 +326,15 @@ export default pattern => {
         } else {
             //TODO
         }
+    }
+
+    function expect(str) {
+        for (let j = 0; j < str.length; j++) {
+            if (pattern[i + j + 1] !== str[j]) {
+                return false
+            }
+        }
+
+        return true
     }
 }
