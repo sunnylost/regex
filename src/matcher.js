@@ -20,6 +20,14 @@ let specialCharMatcher = {
     d: isNumber
 }
 
+function merge(mA, mB) {
+    return {
+        isMatched: true,
+        matchedStr: mA.matchedStr + mB.matchedStr,
+        index: mB.index
+    }
+}
+
 class Matcher {
     constructor({
         type = '',
@@ -97,7 +105,10 @@ class Matcher {
                         min++
                     } else {
                         if (localTrackStack.length) {
-                            return localTrackStack.pop()
+                            return merge(
+                                leastMatchResult,
+                                localTrackStack.pop()
+                            )
                         } else {
                             return leastMatchResult
                         }
@@ -185,16 +196,31 @@ class Matcher {
                 break
 
             case TYPE_OR:
+                // debugger
                 for (let i = 0; i < childrenLen; i++) {
-                    let matcher = children[i]
-                    let result = matcher.execute(config, lastCheckIndex)
+                    matchedStr = ''
+                    let item = children[i]
 
-                    if (result.isMatched) {
-                        isMatched = true
-                        matchedStr = result.matchedStr
+                    for (let j = 0; j < item.length; j++) {
+                        let matcher = item[j]
+                        let result = matcher.execute(config, lastCheckIndex)
+
+                        if (result.isMatched) {
+                            isMatched = true
+                            matchedStr += result.matchedStr
+                            lastCheckIndex += result.matchedStr.length
+                        } else {
+                            isMatched = false
+                            matchedStr = ''
+                            break
+                        }
+                    }
+
+                    if (isMatched) {
                         break
                     }
                 }
+
                 break
 
             case TYPE_DOT:
@@ -215,7 +241,6 @@ class Matcher {
                         isMatched = true
                         matchedStr = (matchedStr || '') + result.matchedStr
                         lastCheckIndex += result.matchedStr.length
-                        break
                     } else {
                         isMatched = false
                         matchedStr = undefined

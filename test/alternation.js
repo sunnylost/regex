@@ -75,3 +75,73 @@ test('15.10.2.3_A1_T8', () => {
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
 })
+
+test('15.10.2.3_A1_T9', () => {
+    let re = new Re('(?:ab|cd)+|ef', 'i')
+    let source = 'AEKFCDab'
+    let result = re.match(source)
+
+    let expected = ['CDab']
+    expected.index = 4
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T10', () => {
+    let re = new Re('(?:ab|cd)+|ef', 'i')
+    let source = 'AEKeFCDab'
+    let result = re.match(source)
+
+    let expected = ['eF']
+    expected.index = 3
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T11', () => {
+    let re = new Re('11111|111')
+    let source = '1111111111111111'
+    let result = re.match(source)
+
+    let expected = ['11111']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T12', () => {
+    let re = new Re('xyz|...')
+    let source = 'abc'
+    let result = re.match(source)
+
+    let expected = ['abc']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T13', () => {
+    let re = new Re('(.)..|abc')
+    let source = 'abc'
+    let result = re.match(source)
+
+    let expected = ['abc', 'a']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})

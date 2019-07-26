@@ -5,29 +5,24 @@ import {
     TYPE_DOT,
     TYPE_OR,
     TYPE_CHAR,
-    TYPE_SPECIAL_CHAR
+    TYPE_SPECIAL_CHAR,
+    TYPE_ALWAYS_PASS
 } from './key'
 import Matcher from './matcher'
 
-const META_CHARACTERS = '()[]{}|^$.*?+-,'
-const SET_META_CHARACTERS = '[](){}|$.*?+,'
 const SPECIAL_TRANSFER = 'bBdDsSwWtrnvf0'
 
 function spreadSet(matcher) {
-    if (
-        matcher.type !== TYPE_SET ||
-        !matcher.children ||
-        !matcher.children.length
-    ) {
+    if (matcher.type !== TYPE_SET) {
         return
     }
 
-    let chars = matcher.children[0].value
+    let chars = matcher.value
     let newChildren = []
 
     for (let i = 0; i < chars.length; i++) {
         let c = chars[i]
-
+        // debugger
         if (c !== '-' || i === 0) {
             newChildren.push(v => v === c)
         } else {
@@ -55,6 +50,27 @@ function isContainerMatcher(matcher) {
         (matcher.type === TYPE_GROUP && !matcher.isClosed) ||
         matcher.type === TYPE_OR
     )
+}
+
+function appendChildren(parentMatcher, childMatcher) {
+    let parent
+    let children
+
+    if (isContainerMatcher(parentMatcher)) {
+        children = parentMatcher.children
+        parent = parentMatcher
+    } else {
+        parent = parentMatcher.parent
+        children = parentMatcher.parent.children
+    }
+
+    childMatcher.parent = parent
+
+    if (parent.type === TYPE_OR) {
+        parent.children[1].push(childMatcher)
+    } else {
+        children.push(childMatcher)
+    }
 }
 
 //TODO
@@ -91,41 +107,33 @@ export default pattern => {
         c = pattern[i]
         // debugger
 
-        if (isInCharacterSet && c !== ']' && SET_META_CHARACTERS.includes(c)) {
+        //TODO: not handle "\\]"
+        if (isInCharacterSet && c !== ']') {
             curMatcher.value += c
             continue
         }
         // debugger
         switch (c) {
             case '(':
-                if (isContainerMatcher(curMatcher)) {
-                    children = curMatcher.children
-                    parent = curMatcher
-                } else {
-                    children = curMatcher.parent.children
-                    parent = curMatcher.parent
-                }
+                matcher = curMatcher
 
                 if (expect('?:')) {
                     i += 2
                     curMatcher = new Matcher({
-                        type: TYPE_GROUP,
-                        parent
+                        type: TYPE_GROUP
                     })
                 } else {
                     curMatcher = new Matcher({
                         type: TYPE_GROUP,
-                        parent,
                         groupIndex: captureIndex++
                     })
 
                     groups[curMatcher.groupIndex] = curMatcher
                 }
 
-                children.push(curMatcher)
+                appendChildren(matcher, curMatcher)
                 break
             case ')':
-                // debugger
                 while (1) {
                     if (curMatcher.isRoot) {
                         break
@@ -143,14 +151,10 @@ export default pattern => {
             case '[':
                 matcher = curMatcher
                 curMatcher = new Matcher({ type: TYPE_SET, parent: matcher })
-                matcher.children.push(curMatcher)
-                matcher = new Matcher({ type: TYPE_CHAR, parent: curMatcher })
-                curMatcher.children.push(matcher)
-                curMatcher = matcher
+                appendChildren(matcher, curMatcher)
                 isInCharacterSet = true
                 break
             case ']':
-                curMatcher = curMatcher.parent
                 isInCharacterSet = false
                 spreadSet(curMatcher)
                 break
@@ -164,12 +168,33 @@ export default pattern => {
                 parent = matcher.parent
                 children = parent.children
                 curMatcher = new Matcher({
-                    type: TYPE_OR,
-                    parent: parent
+                    type: TYPE_OR
                 })
-                children.push(curMatcher)
-                children.splice(children.indexOf(matcher), 1)
-                curMatcher.children.push(matcher)
+
+                // a||c
+                if (matcher.type === TYPE_OR) {
+                    curMatcher.parent = matcher
+                    children[1] = [curMatcher]
+                    curMatcher.children = [
+                        [
+                            new Matcher({
+                                type: TYPE_ALWAYS_PASS
+                            })
+                        ],
+                        []
+                    ]
+                    // a|b|c
+                } else if (parent.type === TYPE_OR) {
+                    curMatcher.parent = parent
+                    curMatcher.children = [[...children[1]], []]
+                    parent.children[1] = [curMatcher]
+                } else {
+                    // left and right container
+                    curMatcher.parent = parent
+                    curMatcher.children = [[...children], []]
+                    children.length = 0
+                    children.push(curMatcher)
+                }
 
                 break
 
@@ -215,29 +240,20 @@ export default pattern => {
             case '.':
                 matcher = curMatcher
                 curMatcher = new Matcher({
-                    type: TYPE_DOT,
-                    parent: matcher.parent
+                    type: TYPE_DOT
                 })
-                matcher.parent.children.push(curMatcher)
+
+                appendChildren(matcher, curMatcher)
 
                 break
             default:
-                if (curMatcher.type === TYPE_CHAR) {
-                    curMatcher.value += c
-                } else {
-                    matcher = curMatcher
-                    curMatcher = new Matcher({
-                        parent: matcher,
-                        type: TYPE_CHAR,
-                        value: c
-                    })
+                matcher = curMatcher
+                curMatcher = new Matcher({
+                    type: TYPE_CHAR,
+                    value: c
+                })
 
-                    if (isContainerMatcher(matcher)) {
-                        matcher.children.push(curMatcher)
-                    } else {
-                        matcher.parent.children.push(curMatcher)
-                    }
-                }
+                appendChildren(matcher, curMatcher)
         }
     }
 
@@ -308,21 +324,14 @@ export default pattern => {
 
         if (SPECIAL_TRANSFER.includes(c)) {
             //TODO
-            let parent
+            let matcher = curMatcher
 
-            if (isContainerMatcher(curMatcher)) {
-                parent = curMatcher
-            } else {
-                parent = curMatcher.parent
-            }
+            curMatcher = new Matcher({
+                type: TYPE_SPECIAL_CHAR,
+                value: c
+            })
 
-            parent.children.push(
-                (curMatcher = new Matcher({
-                    type: TYPE_SPECIAL_CHAR,
-                    parent,
-                    value: c
-                }))
-            )
+            appendChildren(matcher, curMatcher)
         } else {
             //TODO
         }
