@@ -12,7 +12,10 @@
     "devDependencies": {
         "@babel/core": "^7.5.4",
         "@babel/preset-env": "^7.5.4",
+        "@babel/preset-typescript": "^7.3.3",
         "@types/jest": "^24.0.15",
+        "@typescript-eslint/eslint-plugin": "^1.13.0",
+        "@typescript-eslint/parser": "^1.13.0",
         "babel-eslint": "^10.0.2",
         "babel-jest": "^24.8.0",
         "eslint": "^6.0.1",
@@ -23,7 +26,9 @@
         "lint-staged": "^9.2.0",
         "prettier": "^1.18.2",
         "rollup": "^1.16.7",
-        "rollup-plugin-babel": "^4.3.3"
+        "rollup-plugin-typescript": "^1.0.1",
+        "tslib": "^1.10.0",
+        "typescript": "^3.5.3"
     },
     "husky": {
         "hooks": {
@@ -40,18 +45,5 @@
     },
     "browserslist": [
         "> 10%"
-    ],
-    "jest": {
-        "verbose": true,
-        "testRegex": "test/.*[js]",
-        "testPathIgnorePatterns": [
-            "/node_modules/"
-        ],
-        "transform": {
-            "^.+\\.js$": "babel-jest"
-        },
-        "transformIgnorePatterns": [
-            "/node_modules/"
-        ]
-    }
+    ]
 }

@@ -1,4 +1,4 @@
-import Re from '../src'
+import Re from '../src/'
 
 /**
  * comes from https://github.com/tc39/test262/tree/master/test/built-ins/RegExp

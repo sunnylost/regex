@@ -1,3 +1,18 @@
 {
-    "presets": [["@babel/preset-env", { "modules": "auto" }]]
+    "presets": [
+        [
+            "@babel/preset-env",
+            {
+                "targets": {
+                    "node": "current"
+                }
+            }
+        ],
+        [
+            "@babel/preset-typescript",
+            {
+                "allExtensions": true
+            }
+        ]
+    ]
 }

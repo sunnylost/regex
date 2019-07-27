@@ -1,11 +1,4 @@
-import {
-    TYPE_CHAR,
-    TYPE_DOT,
-    TYPE_GROUP,
-    TYPE_OR,
-    TYPE_SET,
-    TYPE_SPECIAL_CHAR
-} from './key'
+import Type from './key'
 
 let isDotMatched = c => {
     return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
@@ -28,28 +21,42 @@ function merge(mA, mB) {
     }
 }
 
-class Matcher {
+class Matcher implements Matcher {
+    type
+    value
+    isRoot = false
+    children
+    parent = null
+    isFirst = false
+    isLast = false
+    isNegative = false
+    isGreedy = true
+    isClosed = false
+    groupIndex
+    index = 0
+    lastCheckIndex = 0
+    quantifier
+    matchResult
+
     constructor({
-        type = '',
+        type,
         value = '',
         children = [],
         parent = null,
-        isNegate = false,
+        isNegative = false,
         isFirst = false,
         isLast = false,
-        isInRange = false,
         isGreedy = true,
-        groupIndex = '',
+        groupIndex,
         index = 1
-    }) {
+    }: any) {
         this.type = type
         this.value = value
         this.children = children
         this.parent = parent
         this.isFirst = isFirst
         this.isLast = isLast
-        this.isNegate = isNegate
-        this.isInRange = isInRange
+        this.isNegative = isNegative
         this.isGreedy = isGreedy
         this.groupIndex = groupIndex
         this.index = index
@@ -124,7 +131,7 @@ class Matcher {
                 traceStack.push({
                     matcher: this
                 })
-                return (this.__matchResult = {
+                return (this.matchResult = {
                     isMatched: true,
                     config,
                     matchedStr: '',
@@ -154,7 +161,7 @@ class Matcher {
         let checkChar
         // debugger
         switch (this.type) {
-            case TYPE_CHAR:
+            case Type.CHAR:
                 let sourceStr = str.substring(
                     lastCheckIndex,
                     lastCheckIndex + this.value.length
@@ -177,8 +184,8 @@ class Matcher {
 
                 break
 
-            case TYPE_SET:
-                let isNegative = this.isNegate
+            case Type.SET:
+                let isNegative = this.isNegative
                 checkChar = str[lastCheckIndex]
 
                 for (let i = 0; i < childrenLen; i++) {
@@ -195,7 +202,7 @@ class Matcher {
 
                 break
 
-            case TYPE_OR:
+            case Type.OR:
                 // debugger
                 for (let i = 0; i < childrenLen; i++) {
                     matchedStr = ''
@@ -223,7 +230,7 @@ class Matcher {
 
                 break
 
-            case TYPE_DOT:
+            case Type.DOT:
                 checkChar = str[lastCheckIndex]
 
                 if (isDotMatched(checkStr)) {
@@ -232,7 +239,7 @@ class Matcher {
                 }
                 break
 
-            case TYPE_GROUP:
+            case Type.GROUP:
                 for (let i = 0; i < childrenLen; i++) {
                     let matcher = children[i]
                     let result = matcher.execute(config, lastCheckIndex)
@@ -249,7 +256,7 @@ class Matcher {
                 }
                 break
 
-            case TYPE_SPECIAL_CHAR:
+            case Type.SPECIAL_CHAR:
                 checkChar = str[lastCheckIndex]
                 isMatched = specialCharMatcher[this.value](checkChar)
 
@@ -259,7 +266,7 @@ class Matcher {
                 break
         }
 
-        return (this.__matchResult = {
+        return (this.matchResult = {
             isMatched,
             config,
             matchedStr,

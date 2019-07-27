@@ -1,4 +1,5 @@
 import Parse from './parse'
+import { MatchResult, Matcher } from '../types'
 
 const FLAGS_ACRONYM = {
     g: 'global',
@@ -8,7 +9,16 @@ const FLAGS_ACRONYM = {
 }
 
 class Re {
-    constructor(pattern, flags) {
+    pattern: string
+    flags: string
+    lastIndex: number
+    processState: number
+    traceStack: any[]
+    states: Matcher[]
+    source: string
+    groups: object
+
+    constructor(pattern: string, flags?: string) {
         this.pattern = pattern
         this.flags = flags || ''
         this.lastIndex = 0
@@ -73,11 +83,11 @@ class Re {
 
         //TODO: groups, global
         if (matchResult.length) {
-            let result = [matchResult.join('')]
+            let result: MatchResult = [matchResult.join('')]
 
             if (this.groups) {
                 Object.values(this.groups).forEach(v => {
-                    let r = v.__matchResult
+                    let r = v.matchResult
                     result.push(r && r.isMatched ? r.matchedStr : undefined)
                 })
             }

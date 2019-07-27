@@ -1,19 +1,11 @@
 //type
-import {
-    TYPE_GROUP,
-    TYPE_SET,
-    TYPE_DOT,
-    TYPE_OR,
-    TYPE_CHAR,
-    TYPE_SPECIAL_CHAR,
-    TYPE_ALWAYS_PASS
-} from './key'
+import Type from './key'
 import Matcher from './matcher'
 
 const SPECIAL_TRANSFER = 'bBdDsSwWtrnvf0'
 
 function spreadSet(matcher) {
-    if (matcher.type !== TYPE_SET) {
+    if (matcher.type !== Type.SET) {
         return
     }
 
@@ -47,8 +39,8 @@ function spreadSet(matcher) {
 function isContainerMatcher(matcher) {
     return (
         matcher.isRoot ||
-        (matcher.type === TYPE_GROUP && !matcher.isClosed) ||
-        matcher.type === TYPE_OR
+        (matcher.type === Type.GROUP && !matcher.isClosed) ||
+        matcher.type === Type.OR
     )
 }
 
@@ -66,7 +58,7 @@ function appendChildren(parentMatcher, childMatcher) {
 
     childMatcher.parent = parent
 
-    if (parent.type === TYPE_OR) {
+    if (parent.type === Type.OR) {
         parent.children[1].push(childMatcher)
     } else {
         children.push(childMatcher)
@@ -74,7 +66,7 @@ function appendChildren(parentMatcher, childMatcher) {
 }
 
 //TODO
-function isQuantifierValid(matcher, quantifier) {
+function isQuantifierValid(matcher, quantifier?) {
     if (matcher.isRoot || matcher.quantifier) {
         throw new Error('Nothing to repeat')
     }
@@ -90,14 +82,9 @@ export default pattern => {
     let isInCharacterSet = false
     let captureIndex = 1
     let groups = {}
-    let stack = [
-        {
-            isRoot: true,
-            children: []
-        }
-    ]
-    let curMatcher = stack[0]
-    let matcher
+    let stack: Matcher[] = [new Matcher({ isRoot: true })]
+    let curMatcher: Matcher = stack[0]
+    let matcher: Matcher
     let i
     let c
     let parent
@@ -120,11 +107,11 @@ export default pattern => {
                 if (expect('?:')) {
                     i += 2
                     curMatcher = new Matcher({
-                        type: TYPE_GROUP
+                        type: Type.GROUP
                     })
                 } else {
                     curMatcher = new Matcher({
-                        type: TYPE_GROUP,
+                        type: Type.GROUP,
                         groupIndex: captureIndex++
                     })
 
@@ -141,7 +128,7 @@ export default pattern => {
 
                     curMatcher = curMatcher.parent
 
-                    if (curMatcher.type === TYPE_GROUP) {
+                    if (curMatcher.type === Type.GROUP) {
                         curMatcher.isClosed = true
                         break
                     }
@@ -150,7 +137,7 @@ export default pattern => {
                 break
             case '[':
                 matcher = curMatcher
-                curMatcher = new Matcher({ type: TYPE_SET, parent: matcher })
+                curMatcher = new Matcher({ type: Type.SET, parent: matcher })
                 appendChildren(matcher, curMatcher)
                 isInCharacterSet = true
                 break
@@ -168,23 +155,23 @@ export default pattern => {
                 parent = matcher.parent
                 children = parent.children
                 curMatcher = new Matcher({
-                    type: TYPE_OR
+                    type: Type.OR
                 })
 
                 // a||c
-                if (matcher.type === TYPE_OR) {
+                if (matcher.type === Type.OR) {
                     curMatcher.parent = matcher
                     children[1] = [curMatcher]
                     curMatcher.children = [
                         [
                             new Matcher({
-                                type: TYPE_ALWAYS_PASS
+                                type: Type.ALWAYS_PASS
                             })
                         ],
                         []
                     ]
                     // a|b|c
-                } else if (parent.type === TYPE_OR) {
+                } else if (parent.type === Type.OR) {
                     curMatcher.parent = parent
                     curMatcher.children = [[...children[1]], []]
                     parent.children[1] = [curMatcher]
@@ -203,7 +190,7 @@ export default pattern => {
                     if (curMatcher.value) {
                         curMatcher.value += c
                     } else {
-                        curMatcher.isNegate = true
+                        curMatcher.isNegative = true
                     }
                 } else {
                     curMatcher.isFirst = true
@@ -240,7 +227,7 @@ export default pattern => {
             case '.':
                 matcher = curMatcher
                 curMatcher = new Matcher({
-                    type: TYPE_DOT
+                    type: Type.DOT
                 })
 
                 appendChildren(matcher, curMatcher)
@@ -249,7 +236,7 @@ export default pattern => {
             default:
                 matcher = curMatcher
                 curMatcher = new Matcher({
-                    type: TYPE_CHAR,
+                    type: Type.CHAR,
                     value: c
                 })
 
@@ -263,8 +250,8 @@ export default pattern => {
     }
 
     function consumeQuantifiers() {
-        let min = ''
-        let max = ''
+        let min: number | string = ''
+        let max: number | string = ''
         let tmp = ''
         let hasDot = false
 
@@ -327,7 +314,7 @@ export default pattern => {
             let matcher = curMatcher
 
             curMatcher = new Matcher({
-                type: TYPE_SPECIAL_CHAR,
+                type: Type.SPECIAL_CHAR,
                 value: c
             })
 

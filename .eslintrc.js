@@ -4,8 +4,11 @@ module.exports = {
         es6: true,
         node: true
     },
-    extends: 'eslint:recommended',
-    parser: 'babel-eslint',
+    extends: ['plugin:@typescript-eslint/recommended'],
+    parser: '@typescript-eslint/parser',
+    parserOptions: {
+        sourceType: 'module'
+    },
     rules: {
         'no-constant-condition': ['error', { checkLoops: false }],
         'linebreak-style': ['error', 'unix'],

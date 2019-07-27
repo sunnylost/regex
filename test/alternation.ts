@@ -1,4 +1,5 @@
 import Re from '../src'
+import { MatchResult } from '../types'
 
 test('15.10.2.3_A1_T1', () => {
     let re = new Re('a|ab')
@@ -13,7 +14,15 @@ test('15.10.2.3_A1_T2', () => {
     let re = new Re('((a)|(ab))((c)|(bc))')
     let result = re.match('abc')
 
-    let expected = ['abc', 'a', 'a', undefined, 'bc', undefined, 'bc']
+    let expected: MatchResult = [
+        'abc',
+        'a',
+        'a',
+        undefined,
+        'bc',
+        undefined,
+        'bc'
+    ]
     expected.input = 'abc'
     expected.index = 0
 
@@ -27,7 +36,7 @@ test('15.10.2.3_A1_T4', () => {
     let source = '2, 12 and 234 AND of course repeat 12'
     let result = re.match(source)
 
-    let expected = ['234']
+    let expected: MatchResult = ['234']
     expected.index = 10
     expected.input = source
 
@@ -47,7 +56,7 @@ test('15.10.2.3_A1_T6', () => {
     let source = 'AEKFCD'
     let result = re.match(source)
 
-    let expected = ['CD']
+    let expected: MatchResult = ['CD']
     expected.index = 4
     expected.input = source
 
@@ -67,7 +76,7 @@ test('15.10.2.3_A1_T8', () => {
     let source = 'AEKFCD'
     let result = re.match(source)
 
-    let expected = ['CD']
+    let expected: MatchResult = ['CD']
     expected.index = 4
     expected.input = source
 
@@ -81,7 +90,7 @@ test('15.10.2.3_A1_T9', () => {
     let source = 'AEKFCDab'
     let result = re.match(source)
 
-    let expected = ['CDab']
+    let expected: MatchResult = ['CDab']
     expected.index = 4
     expected.input = source
 
@@ -95,7 +104,7 @@ test('15.10.2.3_A1_T10', () => {
     let source = 'AEKeFCDab'
     let result = re.match(source)
 
-    let expected = ['eF']
+    let expected: MatchResult = ['eF']
     expected.index = 3
     expected.input = source
 
@@ -109,7 +118,7 @@ test('15.10.2.3_A1_T11', () => {
     let source = '1111111111111111'
     let result = re.match(source)
 
-    let expected = ['11111']
+    let expected: MatchResult = ['11111']
     expected.index = 0
     expected.input = source
 
@@ -123,7 +132,7 @@ test('15.10.2.3_A1_T12', () => {
     let source = 'abc'
     let result = re.match(source)
 
-    let expected = ['abc']
+    let expected: MatchResult = ['abc']
     expected.index = 0
     expected.input = source
 
@@ -137,7 +146,7 @@ test('15.10.2.3_A1_T13', () => {
     let source = 'abc'
     let result = re.match(source)
 
-    let expected = ['abc', 'a']
+    let expected: MatchResult = ['abc', 'a']
     expected.index = 0
     expected.input = source
 
