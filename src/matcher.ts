@@ -44,6 +44,7 @@ class Matcher implements Matcher {
         children = [],
         parent = null,
         isNegative = false,
+        isRoot,
         isFirst = false,
         isLast = false,
         isGreedy = true,
@@ -54,6 +55,7 @@ class Matcher implements Matcher {
         this.value = value
         this.children = children
         this.parent = parent
+        this.isRoot = isRoot
         this.isFirst = isFirst
         this.isLast = isLast
         this.isNegative = isNegative
