@@ -7,7 +7,7 @@
     "license": "MIT",
     "scripts": {
         "serve": "rollup -w -c rollup.config.js -m inline",
-        "test": "jest --watchAll"
+        "test": "jest"
     },
     "devDependencies": {
         "@babel/core": "^7.5.4",

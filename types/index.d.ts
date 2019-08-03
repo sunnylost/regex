@@ -21,10 +21,15 @@ export declare interface Matcher {
     isNegative: boolean
     isGreedy: boolean
     isClosed: boolean
+    isTraceback: boolean
     groupIndex: number
     index: number
     lastCheckIndex: number
+    leastMatchResult: {}
+    localTrackStack: []
     quantifier: Quantifier
     matchResult: object
-    execute(config: object, index: number)
+    preMatchResult: any[]
+    preMatchedIndex: number
+    execute(config: object, index: number): any
 }

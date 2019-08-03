@@ -16,8 +16,8 @@ let specialCharMatcher = {
 function merge(mA, mB) {
     return {
         isMatched: true,
-        matchedStr: mA.matchedStr + mB.matchedStr,
-        index: mB.index
+        matchedStr: mA.matchedStr + mB,
+        index: mA.index + mB.length
     }
 }
 
@@ -32,11 +32,14 @@ class Matcher implements Matcher {
     isNegative = false
     isGreedy = true
     isClosed = false
+    isTraceback = false
     groupIndex
     index = 0
     lastCheckIndex = 0
     quantifier
     matchResult
+    leastMatchResult
+    localTrackStack
 
     constructor({
         type,
@@ -48,6 +51,7 @@ class Matcher implements Matcher {
         isFirst = false,
         isLast = false,
         isGreedy = true,
+        isTraceback = false,
         groupIndex,
         index = 1
     }: any) {
@@ -60,15 +64,17 @@ class Matcher implements Matcher {
         this.isLast = isLast
         this.isNegative = isNegative
         this.isGreedy = isGreedy
+        this.isTraceback = isTraceback
         this.groupIndex = groupIndex
         this.index = index
         this.lastCheckIndex = 0
+        this.localTrackStack = []
     }
 
     execute(config, index = 0) {
-        let processState = config.processState
+        let isTraceback = this.isTraceback
         let traceStack = config.traceStack
-        let localTrackStack = []
+        let localTrackStack = this.localTrackStack
         let quantifier = this.quantifier
 
         if (!quantifier) {
@@ -81,13 +87,13 @@ class Matcher implements Matcher {
 
         //TODO
         if (this.isGreedy) {
-            if (processState === 0) {
+            if (!isTraceback) {
                 // debugger
-                let leastMatchResult = {
+                let leastMatchResult = (this.leastMatchResult = {
                     isMatched: true,
                     matchedStr: '',
                     index
-                }
+                })
 
                 while (min--) {
                     let result = this.match(config, index)
@@ -114,10 +120,14 @@ class Matcher implements Matcher {
                         min++
                     } else {
                         if (localTrackStack.length) {
-                            return merge(
+                            traceStack.push(this)
+                            return (this.matchResult = merge(
                                 leastMatchResult,
-                                localTrackStack.pop()
-                            )
+                                localTrackStack.reduce(
+                                    (a, b) => a + b.matchedStr,
+                                    ''
+                                )
+                            ))
                         } else {
                             return leastMatchResult
                         }
@@ -127,9 +137,24 @@ class Matcher implements Matcher {
                 return leastMatchResult
             } else {
                 //TODO
+                if (localTrackStack.length) {
+                    localTrackStack.pop()
+                    return (this.matchResult = merge(
+                        this.leastMatchResult,
+                        localTrackStack.reduce((a, b) => a + b.matchedStr, '')
+                    ))
+                } else {
+                    this.isTraceback = false
+                    traceStack.splice(traceStack.indexOf(this), 1)
+                    return (this.matchResult = {
+                        isMatched: false,
+                        config,
+                        index
+                    })
+                }
             }
         } else {
-            if (min === 0) {
+            /*if (min === 0) {
                 traceStack.push({
                     matcher: this
                 })
@@ -139,7 +164,7 @@ class Matcher implements Matcher {
                     matchedStr: '',
                     index
                 })
-            }
+            }*/
         }
     }
 

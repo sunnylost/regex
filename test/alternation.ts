@@ -154,3 +154,45 @@ test('15.10.2.3_A1_T13', () => {
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
 })
+
+test('15.10.2.3_A1_T14', () => {
+    let re = new Re('.+: gr(a|e)y')
+    let source = 'color: grey'
+    let result = re.match(source)
+
+    let expected: MatchResult = ['color: grey', 'e']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T15', () => {
+    let re = new Re('(Rob)|(Bob)|(Robert)|(Bobby)')
+    let source = 'Hi Bob'
+    let result = re.match(source)
+
+    let expected: MatchResult = ['Bob', undefined, 'Bob', undefined, undefined]
+    expected.index = 3
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+
+test('15.10.2.3_A1_T16', () => {
+    let re = new Re('()|')
+    let source = ''
+    let result = re.match(source)
+
+    let expected: MatchResult = ['', '']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})

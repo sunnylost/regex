@@ -12,8 +12,7 @@ class Re {
     pattern: string
     flags: string
     lastIndex: number
-    processState: number
-    traceStack: any[]
+    traceStack: Matcher[]
     states: Matcher[]
     source: string
     groups: object
@@ -22,7 +21,6 @@ class Re {
         this.pattern = pattern
         this.flags = flags || ''
         this.lastIndex = 0
-        this.processState = 0 // TODO: 0-normal, 1-backtracking
         this.traceStack = []
         this.parseFlags()
         this.parseStates()
@@ -53,6 +51,7 @@ class Re {
 
         this.source = source
         let states = this.states
+        let traceStack = this.traceStack
         let matchResult = []
         let len = source.length
         let i = 0
@@ -60,15 +59,28 @@ class Re {
         Loop: for (; i < len; i++) {
             let preMatchedIndex = i
 
-            matchResult.length = 0
+            matchResult.length = traceStack.length = 0
 
             for (let j = 0; j < states.length; j++) {
                 let state = states[j]
+                state.index = j
+                state.preMatchedIndex = preMatchedIndex
+                state.preMatchResult = [...matchResult]
+
                 let result = state.execute(this, preMatchedIndex)
-                // debugger
+
                 if (!result.isMatched) {
-                    matchResult.length = 0
-                    continue Loop
+                    if (traceStack.length) {
+                        let lastMatcher = traceStack[traceStack.length - 1]
+                        lastMatcher.isTraceback = true
+                        j = lastMatcher.index - 1
+                        preMatchedIndex = lastMatcher.preMatchedIndex
+                        matchResult = [...lastMatcher.preMatchResult]
+                        debugger
+                        continue
+                    } else {
+                        continue Loop
+                    }
                 } else {
                     preMatchedIndex += result.matchedStr.length
                     matchResult.push(result.matchedStr)
