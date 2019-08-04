@@ -121,6 +121,15 @@ export default pattern => {
                 appendChildren(matcher, curMatcher)
                 break
             case ')':
+                // match empty
+                if (!curMatcher.children.length) {
+                    curMatcher.children.push(
+                        new Matcher({
+                            type: Type.EMPTY
+                        })
+                    )
+                }
+
                 while (1) {
                     if (curMatcher.isRoot) {
                         break
@@ -152,8 +161,24 @@ export default pattern => {
                 break
             case '|':
                 matcher = curMatcher
-                parent = matcher.parent
-                children = parent.children
+
+                if (matcher.isRoot) {
+                    parent = matcher
+                    children = parent.children
+
+                    if (!children.length) {
+                        children.push(
+                            new Matcher({
+                                type: Type.EMPTY
+                            })
+                        )
+                    }
+                } else {
+                    //TODO: need to check children?
+                    parent = matcher.parent
+                    children = parent.children
+                }
+
                 curMatcher = new Matcher({
                     type: Type.OR
                 })

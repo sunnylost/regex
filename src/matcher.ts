@@ -170,7 +170,7 @@ class Matcher implements Matcher {
 
     match(config, index = 0) {
         let str = config.source
-        let maxIndex = str.length
+        let maxIndex = Math.max(str.length, 1)
         let isMatched = false
         let _index = 0
         let matchedStr
@@ -289,6 +289,15 @@ class Matcher implements Matcher {
 
                 if (isMatched) {
                     matchedStr = checkChar
+                }
+                break
+
+            case Type.EMPTY:
+                checkChar = str[lastCheckIndex]
+
+                if (typeof checkChar === 'undefined') {
+                    isMatched = true
+                    matchedStr = ''
                 }
                 break
         }

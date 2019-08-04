@@ -45,15 +45,11 @@ class Re {
     }
 
     match(source) {
-        if (!source) {
-            return null
-        }
-
         this.source = source
         let states = this.states
         let traceStack = this.traceStack
         let matchResult = []
-        let len = source.length
+        let len = Math.max(source.length, 1)
         let i = 0
 
         Loop: for (; i < len; i++) {
@@ -89,7 +85,7 @@ class Re {
 
             //TODO: [] condition
             if (matchResult.length === states.length) {
-                break Loop
+                break
             }
         }
 

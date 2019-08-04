@@ -196,3 +196,17 @@ test('15.10.2.3_A1_T16', () => {
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
 })
+
+test('15.10.2.3_A1_T17', () => {
+    let re = new Re('|()')
+    let source = ''
+    let result = re.match(source)
+
+    let expected: MatchResult = ['', undefined]
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})

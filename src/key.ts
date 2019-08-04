@@ -5,6 +5,7 @@ enum Type {
     OR = 'or', //a|b
     CHAR = 'char', //xxx
     SPECIAL_CHAR = 'special-char', //\d, \D, \b...
-    ALWAYS_PASS = 'always-pass' //TODO
+    ALWAYS_PASS = 'always-pass', //TODO
+    EMPTY = 'empty'
 }
 export default Type
