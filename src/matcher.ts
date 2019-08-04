@@ -119,22 +119,19 @@ class Matcher implements Matcher {
                         index += result.matchedStr.length
                         min++
                     } else {
-                        if (localTrackStack.length) {
-                            traceStack.push(this)
-                            return (this.matchResult = merge(
-                                leastMatchResult,
-                                localTrackStack.reduce(
-                                    (a, b) => a + b.matchedStr,
-                                    ''
-                                )
-                            ))
-                        } else {
-                            return leastMatchResult
-                        }
+                        break
                     }
                 }
 
-                return leastMatchResult
+                if (localTrackStack.length) {
+                    traceStack.push(this)
+                    return (this.matchResult = merge(
+                        leastMatchResult,
+                        localTrackStack.reduce((a, b) => a + b.matchedStr, '')
+                    ))
+                } else {
+                    return leastMatchResult
+                }
             } else {
                 //TODO
                 if (localTrackStack.length) {
