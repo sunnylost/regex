@@ -13,11 +13,23 @@ let specialCharMatcher = {
     d: isNumber
 }
 
-function merge(mA, mB) {
+function merge(leastMatch, localMatch) {
+    let matchedStr =
+        leastMatch.matchedStr +
+        localMatch.reduce((a, b) => a + b.matchedStr, '')
+    let groupMatchedStr
+
+    if (this.type === Type.GROUP) {
+        groupMatchedStr = localMatch[localMatch.length - 1].matchedStr
+    } else {
+        groupMatchedStr = matchedStr
+    }
+
     return {
         isMatched: true,
-        matchedStr: mA.matchedStr + mB,
-        index: mA.index + mB.length
+        matchedStr,
+        groupMatchedStr,
+        index: leastMatch.index + localMatch.length
     }
 }
 
@@ -125,9 +137,10 @@ class Matcher implements Matcher {
 
                 if (localTrackStack.length) {
                     traceStack.push(this)
-                    return (this.matchResult = merge(
+                    return (this.matchResult = merge.call(
+                        this,
                         leastMatchResult,
-                        localTrackStack.reduce((a, b) => a + b.matchedStr, '')
+                        localTrackStack
                     ))
                 } else {
                     return leastMatchResult
@@ -136,9 +149,10 @@ class Matcher implements Matcher {
                 //TODO
                 if (localTrackStack.length) {
                     localTrackStack.pop()
-                    return (this.matchResult = merge(
+                    return (this.matchResult = merge.call(
+                        this,
                         this.leastMatchResult,
-                        localTrackStack.reduce((a, b) => a + b.matchedStr, '')
+                        localTrackStack
                     ))
                 } else {
                     this.isTraceback = false
@@ -229,17 +243,18 @@ class Matcher implements Matcher {
             case Type.OR:
                 // debugger
                 for (let i = 0; i < childrenLen; i++) {
+                    let index = lastCheckIndex
                     matchedStr = ''
                     let item = children[i]
 
                     for (let j = 0; j < item.length; j++) {
                         let matcher = item[j]
-                        let result = matcher.execute(config, lastCheckIndex)
+                        let result = matcher.execute(config, index)
 
                         if (result.isMatched) {
                             isMatched = true
                             matchedStr += result.matchedStr
-                            lastCheckIndex += result.matchedStr.length
+                            index += result.matchedStr.length
                         } else {
                             isMatched = false
                             matchedStr = ''
@@ -303,6 +318,7 @@ class Matcher implements Matcher {
             isMatched,
             config,
             matchedStr,
+            groupMatchedStr: matchedStr,
             index: _index
         })
     }

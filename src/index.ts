@@ -72,8 +72,6 @@ class Re {
                         j = lastMatcher.index - 1
                         preMatchedIndex = lastMatcher.preMatchedIndex
                         matchResult = [...lastMatcher.preMatchResult]
-                        debugger
-                        continue
                     } else {
                         continue Loop
                     }
@@ -96,7 +94,9 @@ class Re {
             if (this.groups) {
                 Object.values(this.groups).forEach(v => {
                     let r = v.matchResult
-                    result.push(r && r.isMatched ? r.matchedStr : undefined)
+                    result.push(
+                        r && r.isMatched ? r.groupMatchedStr : undefined
+                    )
                 })
             }
 
