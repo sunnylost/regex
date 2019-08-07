@@ -70,8 +70,11 @@ class Re {
                         let lastMatcher = traceStack[traceStack.length - 1]
                         lastMatcher.isTraceback = true
                         j = lastMatcher.index - 1
-                        preMatchedIndex = lastMatcher.preMatchedIndex
-                        matchResult = [...lastMatcher.preMatchResult]
+
+                        preMatchedIndex = lastMatcher.preMatchedIndex || 0
+                        matchResult = lastMatcher.preMatchResult
+                            ? [...lastMatcher.preMatchResult]
+                            : []
                     } else {
                         continue Loop
                     }

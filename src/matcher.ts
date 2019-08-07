@@ -20,7 +20,9 @@ function merge(leastMatch, localMatch) {
     let groupMatchedStr
 
     if (this.type === Type.GROUP) {
-        groupMatchedStr = localMatch[localMatch.length - 1].matchedStr
+        groupMatchedStr = localMatch.length
+            ? localMatch[localMatch.length - 1].matchedStr
+            : ''
     } else {
         groupMatchedStr = matchedStr
     }
@@ -102,8 +104,9 @@ class Matcher implements Matcher {
             if (!isTraceback) {
                 // debugger
                 let leastMatchResult = (this.leastMatchResult = {
-                    isMatched: true,
+                    isMatched: false,
                     matchedStr: '',
+                    groupMatchedStr: '',
                     index
                 })
 
@@ -112,6 +115,7 @@ class Matcher implements Matcher {
 
                     if (result.isMatched) {
                         index += result.matchedStr.length
+                        leastMatchResult.isMatched = true
                         leastMatchResult.matchedStr += result.matchedStr
                         leastMatchResult.index = index
                     } else {
@@ -165,17 +169,48 @@ class Matcher implements Matcher {
                 }
             }
         } else {
-            /*if (min === 0) {
-                traceStack.push({
-                    matcher: this
-                })
-                return (this.matchResult = {
-                    isMatched: true,
-                    config,
-                    matchedStr: '',
-                    index
-                })
-            }*/
+            if (!isTraceback) {
+                if (min === 0) {
+                    traceStack.push({
+                        matcher: this
+                    })
+                    return (this.matchResult = {
+                        isMatched: true,
+                        config,
+                        matchedStr: '',
+                        groupMatchedStr: '',
+                        index
+                    })
+                } else {
+                    let leastMatchResult = (this.leastMatchResult = {
+                        isMatched: true,
+                        matchedStr: '',
+                        groupMatchedStr: '',
+                        index
+                    })
+
+                    while (min--) {
+                        let result = this.match(config, index)
+
+                        if (result.isMatched) {
+                            index += result.matchedStr.length
+                            leastMatchResult.matchedStr += result.matchedStr
+                            leastMatchResult.groupMatchedStr =
+                                leastMatchResult.matchedStr
+                            leastMatchResult.index = index
+                        } else {
+                            //match failed
+                            return {
+                                isMatched: false
+                            }
+                        }
+                    }
+
+                    return leastMatchResult
+                }
+            } else {
+                //TODO
+            }
         }
     }
 

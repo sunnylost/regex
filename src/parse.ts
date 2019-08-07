@@ -67,8 +67,16 @@ function appendChildren(parentMatcher, childMatcher) {
 
 //TODO
 function isQuantifierValid(matcher, quantifier?) {
-    if (matcher.isRoot || matcher.quantifier) {
+    if (matcher.isRoot) {
         throw new Error('Nothing to repeat')
+    }
+
+    if (matcher.quantifier) {
+        if (quantifier === '?' && matcher.isGreedy) {
+            return true
+        } else {
+            throw new Error('Nothing to repeat')
+        }
     }
 }
 
@@ -122,7 +130,10 @@ export default pattern => {
                 break
             case ')':
                 // match empty
-                if (!curMatcher.children.length) {
+                if (
+                    !curMatcher.children.length &&
+                    curMatcher.type === Type.GROUP
+                ) {
                     curMatcher.children.push(
                         new Matcher({
                             type: Type.EMPTY
@@ -240,10 +251,16 @@ export default pattern => {
                 break
             case '?':
                 isQuantifierValid(curMatcher, c)
-                curMatcher.quantifier = {
-                    min: 0,
-                    max: 1
+
+                if (curMatcher.quantifier) {
+                    curMatcher.isGreedy = false
+                } else {
+                    curMatcher.quantifier = {
+                        min: 0,
+                        max: 1
+                    }
                 }
+
                 break
             case '\\': //TODO: \\\\
                 i++

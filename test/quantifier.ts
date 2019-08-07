@@ -42,3 +42,17 @@ test('15.10.2.5_A1_T3', () => {
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
 })
+
+/*test('15.10.2.5_A1_T4', () => {
+    let re = new Re('(z)((a+)?(b+)?(c))*')
+    let source = 'zaacbbbcac'
+    let result = re.match(source)
+
+    let expected: MatchResult = ['zaacbbbcac', 'z', 'ac', 'a', undefined, 'c']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})*/
