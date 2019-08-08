@@ -43,7 +43,7 @@ test('15.10.2.5_A1_T3', () => {
     expect(result).toEqual(expected)
 })
 
-/*test('15.10.2.5_A1_T4', () => {
+test('15.10.2.5_A1_T4', () => {
     let re = new Re('(z)((a+)?(b+)?(c))*')
     let source = 'zaacbbbcac'
     let result = re.match(source)
@@ -55,4 +55,4 @@ test('15.10.2.5_A1_T3', () => {
     expect(result.length).toBe(expected.length)
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
-})*/
+})

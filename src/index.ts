@@ -16,12 +16,14 @@ class Re {
     states: Matcher[]
     source: string
     groups: object
+    isTraceback: boolean
 
     constructor(pattern: string, flags?: string) {
         this.pattern = pattern
         this.flags = flags || ''
         this.lastIndex = 0
         this.traceStack = []
+        this.isTraceback = false
         this.parseFlags()
         this.parseStates()
     }
@@ -55,26 +57,17 @@ class Re {
         Loop: for (; i < len; i++) {
             let preMatchedIndex = i
 
+            this.isTraceback = false
             matchResult.length = traceStack.length = 0
 
             for (let j = 0; j < states.length; j++) {
                 let state = states[j]
-                state.index = j
-                state.preMatchedIndex = preMatchedIndex
-                state.preMatchResult = [...matchResult]
-
                 let result = state.execute(this, preMatchedIndex)
 
                 if (!result.isMatched) {
                     if (traceStack.length) {
-                        let lastMatcher = traceStack[traceStack.length - 1]
-                        lastMatcher.isTraceback = true
-                        j = lastMatcher.index - 1
-
-                        preMatchedIndex = lastMatcher.preMatchedIndex || 0
-                        matchResult = lastMatcher.preMatchResult
-                            ? [...lastMatcher.preMatchResult]
-                            : []
+                        this.isTraceback = true
+                        j = 0
                     } else {
                         continue Loop
                     }

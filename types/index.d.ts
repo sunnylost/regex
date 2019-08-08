@@ -1,4 +1,5 @@
 import Type from '../src/key'
+import Matcher from '../src/matcher'
 
 export declare interface Quantifier {
     min: number
@@ -21,7 +22,6 @@ export declare interface Matcher {
     isNegative: boolean
     isGreedy: boolean
     isClosed: boolean
-    isTraceback: boolean
     groupIndex: number
     index: number
     lastCheckIndex: number
@@ -32,4 +32,5 @@ export declare interface Matcher {
     preMatchResult: any[]
     preMatchedIndex: number
     execute(config: object, index: number): any
+    match(config: object, index: number): any
 }

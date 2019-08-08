@@ -46,7 +46,6 @@ class Matcher implements Matcher {
     isNegative = false
     isGreedy = true
     isClosed = false
-    isTraceback = false
     groupIndex
     index = 0
     lastCheckIndex = 0
@@ -65,7 +64,6 @@ class Matcher implements Matcher {
         isFirst = false,
         isLast = false,
         isGreedy = true,
-        isTraceback = false,
         groupIndex,
         index = 1
     }: any) {
@@ -78,7 +76,6 @@ class Matcher implements Matcher {
         this.isLast = isLast
         this.isNegative = isNegative
         this.isGreedy = isGreedy
-        this.isTraceback = isTraceback
         this.groupIndex = groupIndex
         this.index = index
         this.lastCheckIndex = 0
@@ -86,9 +83,9 @@ class Matcher implements Matcher {
     }
 
     execute(config, index = 0) {
-        let isTraceback = this.isTraceback
+        let isTraceback = config.isTraceback
         let traceStack = config.traceStack
-        let localTrackStack = this.localTrackStack
+        let localTrackStack = []
         let quantifier = this.quantifier
 
         if (!quantifier) {
@@ -101,10 +98,11 @@ class Matcher implements Matcher {
 
         //TODO
         if (this.isGreedy) {
+            // debugger
             if (!isTraceback) {
                 // debugger
                 let leastMatchResult = (this.leastMatchResult = {
-                    isMatched: false,
+                    isMatched: !min, // min === 0 means match
                     matchedStr: '',
                     groupMatchedStr: '',
                     index
@@ -140,7 +138,11 @@ class Matcher implements Matcher {
                 }
 
                 if (localTrackStack.length) {
+                    if (traceStack.indexOf(this)) {
+                        traceStack.splice(traceStack.indexOf(this), 1)
+                    }
                     traceStack.push(this)
+                    this.localTrackStack = localTrackStack
                     return (this.matchResult = merge.call(
                         this,
                         leastMatchResult,
@@ -151,6 +153,7 @@ class Matcher implements Matcher {
                 }
             } else {
                 //TODO
+                localTrackStack = this.localTrackStack
                 if (localTrackStack.length) {
                     localTrackStack.pop()
                     return (this.matchResult = merge.call(
@@ -159,7 +162,6 @@ class Matcher implements Matcher {
                         localTrackStack
                     ))
                 } else {
-                    this.isTraceback = false
                     traceStack.splice(traceStack.indexOf(this), 1)
                     return (this.matchResult = {
                         isMatched: false,
