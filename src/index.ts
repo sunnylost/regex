@@ -65,9 +65,12 @@ class Re {
                 let result = state.execute(this, preMatchedIndex)
 
                 if (!result.isMatched) {
+                    matchResult.length = preMatchedIndex = 0
+
+                    //TODO: when do we need to empty traceStack?
                     if (traceStack.length) {
                         this.isTraceback = true
-                        j = 0
+                        j = -1
                     } else {
                         continue Loop
                     }
