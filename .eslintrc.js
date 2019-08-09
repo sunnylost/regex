@@ -20,7 +20,8 @@ module.exports = {
             }
         ],
         semi: ['error', 'never'],
+        '@typescript-eslint/explicit-member-accessibility': 'off',
         'prettier/prettier': 'error'
     },
-    plugins: ['prettier']
+    plugins: ['@typescript-eslint', 'prettier']
 }

@@ -27,6 +27,7 @@
         "prettier": "^1.18.2",
         "rollup": "^1.16.7",
         "rollup-plugin-typescript": "^1.0.1",
+        "ts-jest": "^24.0.2",
         "tslib": "^1.10.0",
         "typescript": "^3.5.3"
     },
@@ -36,12 +37,10 @@
         }
     },
     "lint-staged": {
-        "linters": {
-            "*.js": [
-                "eslint --fix",
-                "git add"
-            ]
-        }
+        "*.{js, ts}": [
+            "eslint --fix",
+            "git add"
+        ]
     },
     "browserslist": [
         "> 10%"
