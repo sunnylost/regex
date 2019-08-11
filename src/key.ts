@@ -1,4 +1,5 @@
 enum Type {
+    ASSERT = 'assert',
     GROUP = 'group', //(xxx)
     SET = 'set', //[xxx]
     DOT = 'dot', //.

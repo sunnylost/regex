@@ -1,4 +1,5 @@
 import Type from './key'
+import { IMatcher } from '../types'
 
 let isDotMatched = c => {
     return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
@@ -35,7 +36,7 @@ function merge(leastMatch, localMatch) {
     }
 }
 
-class Matcher implements Matcher {
+class Matcher implements IMatcher {
     type
     value
     isRoot = false
@@ -53,6 +54,8 @@ class Matcher implements Matcher {
     matchResult
     leastMatchResult
     localTrackStack
+    preMatchedIndex = 0
+    preMatchResult
 
     constructor({
         type,
@@ -221,9 +224,9 @@ class Matcher implements Matcher {
         let maxIndex = Math.max(str.length, 1)
         let isMatched = false
         let _index = 0
-        let matchedStr
+        let matchedStr = ''
         // debugger
-        if (index >= maxIndex) {
+        if (index > maxIndex) {
             return {
                 isMatched: false
             }
@@ -348,6 +351,28 @@ class Matcher implements Matcher {
                     isMatched = true
                     matchedStr = ''
                 }
+                break
+
+            case Type.ASSERT:
+                switch (this.value) {
+                    case '$':
+                        if (config.multiline) {
+                            if (str[lastCheckIndex] === '\n') {
+                                isMatched = true
+                            }
+                        }
+
+                        if (config.source.length === lastCheckIndex) {
+                            isMatched = true
+                        }
+
+                        break
+
+                    case '^':
+                        //TODO
+                        break
+                }
+
                 break
         }
 

@@ -1,10 +1,11 @@
 //type
 import Type from './key'
 import Matcher from './matcher'
+import { IMatcher } from '../types'
 
 const SPECIAL_TRANSFER = 'bBdDsSwWtrnvf0'
 
-function spreadSet(matcher) {
+function spreadSet(matcher: IMatcher) {
     if (matcher.type !== Type.SET) {
         return
     }
@@ -14,6 +15,11 @@ function spreadSet(matcher) {
 
     for (let i = 0; i < chars.length; i++) {
         let c = chars[i]
+
+        if (c === '^' && !i) {
+            matcher.isNegative = true
+            continue
+        }
         // debugger
         if (c !== '-' || i === 0) {
             newChildren.push(v => v === c)
@@ -90,9 +96,9 @@ export default pattern => {
     let isInCharacterSet = false
     let captureIndex = 1
     let groups = {}
-    let stack: Matcher[] = [new Matcher({ isRoot: true })]
-    let curMatcher: Matcher = stack[0]
-    let matcher: Matcher
+    let stack: IMatcher[] = [new Matcher({ isRoot: true })]
+    let curMatcher: IMatcher = stack[0]
+    let matcher: IMatcher
     let i
     let c
     let parent
@@ -222,18 +228,14 @@ export default pattern => {
                 break
 
             case '^':
-                if (isInCharacterSet) {
-                    if (curMatcher.value) {
-                        curMatcher.value += c
-                    } else {
-                        curMatcher.isNegative = true
-                    }
-                } else {
-                    curMatcher.isFirst = true
-                }
-                break
             case '$':
-                curMatcher.isLast = true
+                matcher = curMatcher
+                curMatcher = new Matcher({
+                    type: Type.ASSERT,
+                    value: c
+                })
+
+                appendChildren(matcher, curMatcher)
                 break
             case '+':
                 isQuantifierValid(curMatcher, c)

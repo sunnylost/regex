@@ -1,22 +1,40 @@
 import Type from '../src/key'
-import Matcher from '../src/matcher'
 
-export declare interface Quantifier {
+export declare interface IQuantifier {
     min: number
     max: number
 }
 
-export declare interface MatchResult extends Array<string> {
+export declare interface IMatchResult extends Array<string> {
     input?: string
     index?: number
 }
 
-export declare interface Matcher {
+export declare interface IRe {
+    pattern: string
+    flags: string
+    lastIndex: number
+    traceStack: IMatcher[]
+    states: IMatcher[]
+    source: string
+    groups: {}
+    isTraceback: boolean
+    global: boolean
+    ignoreCase: boolean
+    multiline: boolean
+    sticky: boolean
+    parseFlags()
+    parseStates()
+    match(str: string): object
+    test(str: string): boolean
+}
+
+export declare interface IMatcher {
     type: Type
     value: string
     isRoot: boolean
-    children: Matcher[] | Matcher[][] | any[]
-    parent: Matcher | null
+    children: IMatcher[] | IMatcher[][] | any[]
+    parent: IMatcher | null
     isFirst: boolean
     isLast: boolean
     isNegative: boolean
@@ -27,10 +45,10 @@ export declare interface Matcher {
     lastCheckIndex: number
     leastMatchResult: {}
     localTrackStack: []
-    quantifier: Quantifier
-    matchResult: object
+    quantifier: IQuantifier
+    matchResult: any
     preMatchResult: any[]
     preMatchedIndex: number
-    execute(config: object, index: number): any
-    match(config: object, index: number): any
+    execute(config: IRe, index: number): any
+    match(config: IRe, index: number): any
 }

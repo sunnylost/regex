@@ -1,5 +1,5 @@
 import Parse from './parse'
-import { MatchResult, Matcher } from '../types'
+import { IRe, IMatchResult, IMatcher } from '../types'
 
 const FLAGS_ACRONYM = {
     g: 'global',
@@ -8,15 +8,19 @@ const FLAGS_ACRONYM = {
     s: 'sticky'
 }
 
-class Re {
-    pattern: string
-    flags: string
-    lastIndex: number
-    traceStack: Matcher[]
-    states: Matcher[]
-    source: string
-    groups: object
-    isTraceback: boolean
+class Re implements IRe {
+    pattern
+    flags
+    lastIndex
+    traceStack = []
+    states = []
+    source = ''
+    groups
+    isTraceback = false
+    global = false
+    ignoreCase = false
+    multiline = false
+    sticky = false
 
     constructor(pattern: string, flags?: string) {
         this.pattern = pattern
@@ -88,10 +92,10 @@ class Re {
 
         //TODO: groups, global
         if (matchResult.length) {
-            let result: MatchResult = [matchResult.join('')]
+            let result: IMatchResult = [matchResult.join('')]
 
             if (this.groups) {
-                Object.values(this.groups).forEach(v => {
+                Object.values(this.groups).forEach((v: IMatcher) => {
                     let r = v.matchResult
                     result.push(
                         r && r.isMatched ? r.groupMatchedStr : undefined

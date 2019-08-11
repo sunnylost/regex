@@ -1,5 +1,5 @@
 import Re from '../src'
-import { MatchResult } from '../types'
+import { IMatchResult } from '../types'
 
 test('15.10.2.3_A1_T1', () => {
     let re = new Re('a|ab')
@@ -14,7 +14,7 @@ test('15.10.2.3_A1_T2', () => {
     let re = new Re('((a)|(ab))((c)|(bc))')
     let result = re.match('abc')
 
-    let expected: MatchResult = [
+    let expected: IMatchResult = [
         'abc',
         'a',
         'a',
@@ -36,7 +36,7 @@ test('15.10.2.3_A1_T4', () => {
     let source = '2, 12 and 234 AND of course repeat 12'
     let result = re.match(source)
 
-    let expected: MatchResult = ['234']
+    let expected: IMatchResult = ['234']
     expected.index = 10
     expected.input = source
 
@@ -56,7 +56,7 @@ test('15.10.2.3_A1_T6', () => {
     let source = 'AEKFCD'
     let result = re.match(source)
 
-    let expected: MatchResult = ['CD']
+    let expected: IMatchResult = ['CD']
     expected.index = 4
     expected.input = source
 
@@ -76,7 +76,7 @@ test('15.10.2.3_A1_T8', () => {
     let source = 'AEKFCD'
     let result = re.match(source)
 
-    let expected: MatchResult = ['CD']
+    let expected: IMatchResult = ['CD']
     expected.index = 4
     expected.input = source
 
@@ -90,7 +90,7 @@ test('15.10.2.3_A1_T9', () => {
     let source = 'AEKFCDab'
     let result = re.match(source)
 
-    let expected: MatchResult = ['CDab']
+    let expected: IMatchResult = ['CDab']
     expected.index = 4
     expected.input = source
 
@@ -104,7 +104,7 @@ test('15.10.2.3_A1_T10', () => {
     let source = 'AEKeFCDab'
     let result = re.match(source)
 
-    let expected: MatchResult = ['eF']
+    let expected: IMatchResult = ['eF']
     expected.index = 3
     expected.input = source
 
@@ -118,7 +118,7 @@ test('15.10.2.3_A1_T11', () => {
     let source = '1111111111111111'
     let result = re.match(source)
 
-    let expected: MatchResult = ['11111']
+    let expected: IMatchResult = ['11111']
     expected.index = 0
     expected.input = source
 
@@ -132,7 +132,7 @@ test('15.10.2.3_A1_T12', () => {
     let source = 'abc'
     let result = re.match(source)
 
-    let expected: MatchResult = ['abc']
+    let expected: IMatchResult = ['abc']
     expected.index = 0
     expected.input = source
 
@@ -146,7 +146,7 @@ test('15.10.2.3_A1_T13', () => {
     let source = 'abc'
     let result = re.match(source)
 
-    let expected: MatchResult = ['abc', 'a']
+    let expected: IMatchResult = ['abc', 'a']
     expected.index = 0
     expected.input = source
 
@@ -160,7 +160,7 @@ test('15.10.2.3_A1_T14', () => {
     let source = 'color: grey'
     let result = re.match(source)
 
-    let expected: MatchResult = ['color: grey', 'e']
+    let expected: IMatchResult = ['color: grey', 'e']
     expected.index = 0
     expected.input = source
 
@@ -174,7 +174,7 @@ test('15.10.2.3_A1_T15', () => {
     let source = 'Hi Bob'
     let result = re.match(source)
 
-    let expected: MatchResult = ['Bob', undefined, 'Bob', undefined, undefined]
+    let expected: IMatchResult = ['Bob', undefined, 'Bob', undefined, undefined]
     expected.index = 3
     expected.input = source
 
@@ -188,7 +188,7 @@ test('15.10.2.3_A1_T16', () => {
     let source = ''
     let result = re.match(source)
 
-    let expected: MatchResult = ['', '']
+    let expected: IMatchResult = ['', '']
     expected.index = 0
     expected.input = source
 
@@ -202,7 +202,7 @@ test('15.10.2.3_A1_T17', () => {
     let source = ''
     let result = re.match(source)
 
-    let expected: MatchResult = ['', undefined]
+    let expected: IMatchResult = ['', undefined]
     expected.index = 0
     expected.input = source
 
