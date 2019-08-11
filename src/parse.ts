@@ -13,13 +13,13 @@ function spreadSet(matcher: IMatcher) {
     let chars = matcher.value
     let newChildren = []
 
+    if (chars[0] === '^') {
+        matcher.isNegative = true
+        chars = chars.slice(1)
+    }
+
     for (let i = 0; i < chars.length; i++) {
         let c = chars[i]
-
-        if (c === '^' && !i) {
-            matcher.isNegative = true
-            continue
-        }
         // debugger
         if (c !== '-' || i === 0) {
             newChildren.push(v => v === c)
@@ -109,7 +109,7 @@ export default pattern => {
         // debugger
 
         //TODO: not handle "\\]"
-        if (isInCharacterSet && c !== ']') {
+        if (isInCharacterSet && c !== '\\' && c !== ']') {
             curMatcher.value += c
             continue
         }
@@ -365,6 +365,18 @@ export default pattern => {
             appendChildren(matcher, curMatcher)
         } else {
             //TODO
+            if (isInCharacterSet) {
+                curMatcher.value += c
+            } else {
+                //TODO
+                let matcher = curMatcher
+
+                curMatcher = new Matcher({
+                    type: Type.CHAR,
+                    value: c
+                })
+                appendChildren(matcher, curMatcher)
+            }
         }
     }
 

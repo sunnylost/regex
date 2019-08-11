@@ -133,7 +133,9 @@ class Matcher implements IMatcher {
 
                     if (result.isMatched) {
                         localTrackStack.push(result)
-                        index += result.matchedStr.length
+                        index += result.matchedStr
+                            ? result.matchedStr.length
+                            : 1
                         min++
                     } else {
                         break
@@ -232,6 +234,12 @@ class Matcher implements IMatcher {
             }
         }
 
+        if (index === maxIndex && this.type !== Type.ASSERT) {
+            return {
+                isMatched: false
+            }
+        }
+
         let lastCheckIndex = (this.lastCheckIndex = index)
         let children = this.children
         let childrenLen = children.length
@@ -270,8 +278,13 @@ class Matcher implements IMatcher {
                     let matcher = children[i]
                     let result = matcher(checkChar)
 
-                    if ((isNegative && !result) || result) {
-                        //match
+                    if (isNegative) {
+                        if (!result) {
+                            isMatched = true
+                            matchedStr = checkChar
+                            break
+                        }
+                    } else if (result) {
                         isMatched = true
                         matchedStr = checkChar
                         break
