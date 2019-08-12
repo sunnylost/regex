@@ -42,8 +42,6 @@ class Matcher implements IMatcher {
     isRoot = false
     children
     parent = null
-    isFirst = false
-    isLast = false
     isNegative = false
     isGreedy = true
     isClosed = false
@@ -64,8 +62,6 @@ class Matcher implements IMatcher {
         parent = null,
         isNegative = false,
         isRoot,
-        isFirst = false,
-        isLast = false,
         isGreedy = true,
         groupIndex,
         index = 1
@@ -75,8 +71,6 @@ class Matcher implements IMatcher {
         this.children = children
         this.parent = parent
         this.isRoot = isRoot
-        this.isFirst = isFirst
-        this.isLast = isLast
         this.isNegative = isNegative
         this.isGreedy = isGreedy
         this.groupIndex = groupIndex
@@ -383,6 +377,16 @@ class Matcher implements IMatcher {
 
                     case '^':
                         //TODO
+                        if (config.multiline) {
+                            if (str[lastCheckIndex - 1] === '\n') {
+                                isMatched = true
+                            }
+                        }
+
+                        //TODO
+                        if (!lastCheckIndex) {
+                            isMatched = true
+                        }
                         break
                 }
 

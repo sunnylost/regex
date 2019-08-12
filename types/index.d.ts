@@ -35,8 +35,6 @@ export declare interface IMatcher {
     isRoot: boolean
     children: IMatcher[] | IMatcher[][] | any[]
     parent: IMatcher | null
-    isFirst: boolean
-    isLast: boolean
     isNegative: boolean
     isGreedy: boolean
     isClosed: boolean
