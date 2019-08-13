@@ -1,0 +1,59 @@
+- 15.10.2.6_A1_T1:
+    - ['s$']
+    - ['pairs\nmakes\tdouble']
+
+- 15.10.2.6_A1_T2:
+    - ['e$']
+    - ['pairs\nmakes\tdouble', ['e'], 17]
+
+- 15.10.2.6_A1_T3:
+    - ['s$', 'm']
+    - ['pairs\nmakes\tdouble', ['s'], 4]
+
+- 15.10.2.6_A1_T4:
+    - ['[^e]$', 'mg']
+    - ['pairs\nmakes\tdouble', ['s'], 4]
+
+- 15.10.2.6_A1_T5:
+    - ['es$', 'mg']
+    - ['pairs\nmakes\tdoubl\u0065s', ['es'], 17]
+
+- 15.10.2.6_A2_T1:
+    - ['^m']
+    - ['pairs\nmakes\tdouble']
+
+- 15.10.2.6_A2_T2:
+    - ['^m', 'm']
+    - ['pairs\nmakes\tdouble', ['m'], 6]
+
+- 15.10.2.6_A2_T3:
+    - ['^p[a-z]']
+    - ['pairs\nmakes\tdouble\npesos', ['pa'], 0]
+
+- 15.10.2.6_A2_T4:
+    - ['^p[b-z]', 'm']
+    - ['pairs\nmakes\tdouble\npesos', ['pe'], 19]
+
+- 15.10.2.6_A2_T5:
+    - ['^[^p]', 'm']
+    - ['pairs\nmakes\tdouble\npesos', ['m'], 6]
+
+- 15.10.2.6_A2_T6:
+    - ['^ab']
+    - ['abcde', ['ab'], 0]
+
+- 15.10.2.6_A2_T7:
+    - ['^..^e']
+    - ['ab\ncde']
+
+- 15.10.2.6_A2_T8:
+    - ['^xxx']
+    - ['yyyyy']
+
+- 15.10.2.6_A2_T9:
+    - ['^\\^+']
+    - ['^^^x', ['^^^'], 0]
+
+- 15.10.2.6_A2_T10:
+    - ['^\\d+', 'm']
+    - ['abc\n123xyz',  ['123'], 4]

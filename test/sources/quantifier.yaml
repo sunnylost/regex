@@ -1,0 +1,19 @@
+- 15.10.2.5_A1_T1:
+    - ['a[a-z]{2,4}']
+    - ['abcdefghi', ['abcde'], 0]
+
+- 15.10.2.5_A1_T2:
+    - ['a[a-z]{2,4}?']
+    - ['abcdefghi', ['abc'], 0]
+
+- 15.10.2.5_A1_T3:
+    - ['(aa|aabaac|ba|b|c)*']
+    - ['aabaac', ['aaba', 'ba'], 0]
+
+- 15.10.2.5_A1_T4:
+    - ['(z)((a+)?(b+)?(c))*']
+    - ['zaacbbbcac',['zaacbbbcac', 'z', 'ac', 'a', undefined, 'c'], 0]
+
+- 15.10.2.5_A1_T5:
+    - ['(a*)b\\1+']
+    - ['baaaac',['b', ''], 0]
