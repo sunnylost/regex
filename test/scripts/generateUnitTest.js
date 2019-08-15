@@ -6,6 +6,9 @@ let prettier = require('prettier')
 let prettierrc = JSON.parse(
     fs.readFileSync(resolve(__dirname, '../../.prettierrc'), 'utf8')
 )
+let updateRecordFilePath = '../../unit-test-generate-info'
+let updateRecordFileName = 'info.json'
+let lastUpdateTime = {}
 
 const PREFIX = `
 import Re from '../../src'
@@ -63,25 +66,68 @@ function generateContent(data) {
     return prettier.format(PREFIX + '\n' + content.join('\n'), prettierrc)
 }
 
-glob('../sources/*.yaml', (err, files) => {
-    if (err) {
-        return console.error(err)
-    }
+function loadLastUpdateTime() {
+    return new Promise(res => {
+        console.log(
+            resolve(__dirname, updateRecordFilePath, updateRecordFileName)
+        )
 
-    files.forEach(v => {
-        let arr = v.split('/')
-        let filename = arr[arr.length - 1].replace('.yaml', '.ts')
-        let filePath = resolve(__dirname, v)
-        let doc = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
-
-        if (doc) {
-            let content = generateContent(doc)
-
-            fs.writeFileSync(
-                resolve(__dirname, `../unit/${filename}`),
-                content,
+        try {
+            let recordFileContent = fs.readFileSync(
+                resolve(__dirname, updateRecordFilePath, updateRecordFileName),
                 'utf8'
             )
+
+            if (recordFileContent) {
+                lastUpdateTime = JSON.parse(recordFileContent)
+            }
+
+            res()
+        } catch (e) {
+            res()
         }
     })
-})
+}
+
+function updateLastUpdateTime() {
+    fs.writeFileSync(
+        resolve(__dirname, updateRecordFilePath, updateRecordFileName),
+        JSON.stringify(lastUpdateTime, null, '  '),
+        'utf8'
+    )
+}
+
+function generate() {
+    glob('../sources/*.yaml', (err, files) => {
+        if (err) {
+            return console.error(err)
+        }
+
+        files.forEach(v => {
+            let arr = v.split('/')
+            let filename = arr[arr.length - 1].replace('.yaml', '.ts')
+            let filePath = resolve(__dirname, v)
+            let modifyTime = '' + fs.statSync(filePath).mtimeMs
+
+            if (lastUpdateTime[filename] !== modifyTime) {
+                lastUpdateTime[filename] = modifyTime
+
+                let doc = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
+
+                if (doc) {
+                    let content = generateContent(doc)
+
+                    fs.writeFileSync(
+                        resolve(__dirname, `../unit/${filename}`),
+                        content,
+                        'utf8'
+                    )
+                }
+            }
+        })
+
+        updateLastUpdateTime()
+    })
+}
+
+loadLastUpdateTime().then(generate)
