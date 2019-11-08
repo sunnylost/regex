@@ -10,8 +10,15 @@ let isNumber = c => {
     return code >= 48 && code <= 57
 }
 
+let not = fn => {
+    return function(...args) {
+        return !fn.apply(this, args)
+    }
+}
+
 let specialCharMatcher = {
-    d: isNumber
+    d: isNumber,
+    D: not(isNumber)
 }
 
 function merge(leastMatch, localMatch) {
