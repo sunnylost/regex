@@ -1,1 +1,55 @@
 # regex
+
+## TODO
+
+- [x] basic match
+- [ ] Character Classes
+    - [x] .
+    - [x] \d
+    - [ ] \D
+    - [ ] \w
+    - [ ] \W
+    - [ ] \s
+    - [ ] \S
+    - [ ] \t
+    - [ ] \r
+    - [ ] \n
+    - [ ] \v
+    - [ ] \f
+    - ...
+- [ ] Character Sets
+    - [x] \[xyz]
+    - [x] \[^xyz]
+- [ ] Boundaries
+    - [ ] ^
+    - [ ] $
+    - [ ] \b
+    - [ ] \B
+- [ ] Alternation
+    - [x] x|y
+- [ ] Grouping and back references
+    - [x] \(x)
+    - [ ] \n
+    - [x] \(:?x)
+- [ ] Quantifiers
+    - [x] x*
+    - [x] x+
+    - [x] x?
+    - [x] x{n}
+    - [x] x{n,}
+    - [x] x{n,m}
+    - [ ] x*?
+    - [ ] x+?
+    - [ ] x??
+    - [ ] x{n}?
+    - [ ] x{n,}?
+    - [ ] x{n,m}?
+- [ ] Assertions
+    - [ ] x(?=y)
+    - [ ] x(?!y)
+- [ ] flags
+    - [ ] global
+    - [ ] ignore case
+    - [ ] multiline
+    - [ ] unicode
+    - [ ] sticky
