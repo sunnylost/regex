@@ -68,8 +68,11 @@ class Re implements IRe {
                 let state = states[j]
                 let result = state.execute(this, preMatchedIndex)
 
+                // debugger
                 if (!result.isMatched) {
-                    matchResult.length = preMatchedIndex = 0
+                    // debugger
+                    matchResult.length = 0
+                    preMatchedIndex = i
 
                     //TODO: when do we need to empty traceStack?
                     if (traceStack.length) {

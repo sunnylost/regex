@@ -49,4 +49,6 @@ export declare interface IMatcher {
     preMatchedIndex: number
     execute(config: IRe, index: number): any
     match(config: IRe, index: number): any
+    handleQuantifier(config: IRe, index: number): any
+    handleTraceback(config: IRe, index: number): any
 }

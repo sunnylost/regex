@@ -80,23 +80,31 @@ class Matcher implements IMatcher {
     }
 
     execute(config, index = 0) {
-        let isTraceback = config.isTraceback
+        if (!this.quantifier) {
+            if (config.isTraceback) {
+                // console.log('last match result', this.matchResult)
+                return this.matchResult
+            } else {
+                return this.match(config, index)
+            }
+        } else {
+            return this.handleQuantifier(config, index)
+        }
+    }
+
+    handleQuantifier(config, index) {
         let traceStack = config.traceStack
         let localTrackStack = []
         let quantifier = this.quantifier
-
-        if (!quantifier) {
-            return this.match(config, index)
-        }
-
         let min = quantifier.min
         let max = quantifier.max
         let offset = max - min
 
-        //TODO
-        if (this.isGreedy) {
-            // debugger
-            if (!isTraceback) {
+        if (config.isTraceback) {
+            return this.handleTraceback(config, index)
+        } else {
+            //TODO
+            if (this.isGreedy) {
                 // debugger
                 let leastMatchResult = (this.leastMatchResult = {
                     isMatched: !min, // min === 0 means match
@@ -151,26 +159,6 @@ class Matcher implements IMatcher {
                     return leastMatchResult
                 }
             } else {
-                //TODO
-                localTrackStack = this.localTrackStack
-                if (localTrackStack.length) {
-                    localTrackStack.pop()
-                    return (this.matchResult = merge.call(
-                        this,
-                        this.leastMatchResult,
-                        localTrackStack
-                    ))
-                } else {
-                    traceStack.splice(traceStack.indexOf(this), 1)
-                    return (this.matchResult = {
-                        isMatched: false,
-                        config,
-                        index
-                    })
-                }
-            }
-        } else {
-            if (!isTraceback) {
                 if (min === 0) {
                     traceStack.push({
                         matcher: this
@@ -209,9 +197,39 @@ class Matcher implements IMatcher {
 
                     return leastMatchResult
                 }
-            } else {
-                //TODO
             }
+        }
+    }
+
+    handleTraceback(config, index) {
+        let localTrackStack = []
+        let traceStack = config.traceStack
+
+        //TODO
+        config.isTraceback = false
+
+        if (this.isGreedy) {
+            debugger
+            //TODO
+            localTrackStack = this.localTrackStack
+
+            if (localTrackStack.length) {
+                localTrackStack.pop()
+                return (this.matchResult = merge.call(
+                    this,
+                    this.leastMatchResult,
+                    localTrackStack
+                ))
+            } else {
+                traceStack.splice(traceStack.indexOf(this), 1)
+                return (this.matchResult = {
+                    isMatched: false,
+                    config,
+                    index
+                })
+            }
+        } else {
+            //TODO: non-greedy traceback
         }
     }
 
