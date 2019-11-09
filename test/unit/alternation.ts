@@ -2,12 +2,12 @@ import Re from '../../src'
 import { IMatchResult } from '../../types'
 
 test('15.10.2.3_A1_T1', () => {
-    let re = new Re('a|ab')
+    const re = new Re('a|ab')
 
-    let source = 'abc'
-    let result = re.match(source)
+    const source = 'abc'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['a']
+    const expected: IMatchResult = ['a']
     expected.index = 0
     expected.input = source
 
@@ -16,12 +16,12 @@ test('15.10.2.3_A1_T1', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T2', () => {
-    let re = new Re('((a)|(ab))((c)|(bc))')
+    const re = new Re('((a)|(ab))((c)|(bc))')
 
-    let source = 'abc'
-    let result = re.match(source)
+    const source = 'abc'
+    const result = re.match(source)
 
-    let expected: IMatchResult = [
+    const expected: IMatchResult = [
         'abc',
         'a',
         'a',
@@ -38,12 +38,12 @@ test('15.10.2.3_A1_T2', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T4', () => {
-    let re = new Re('\\d{3}|[a-z]{4}')
+    const re = new Re('\\d{3}|[a-z]{4}')
 
-    let source = '2, 12 and 234 AND of course repeat 12'
-    let result = re.match(source)
+    const source = '2, 12 and 234 AND of course repeat 12'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['234']
+    const expected: IMatchResult = ['234']
     expected.index = 10
     expected.input = source
 
@@ -52,18 +52,18 @@ test('15.10.2.3_A1_T4', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T5', () => {
-    let re = new Re('\\d{3}|[a-z]{4}')
+    const re = new Re('\\d{3}|[a-z]{4}')
 
-    let source = '2, 12 and 23 AND 0.00.1'
+    const source = '2, 12 and 23 AND 0.00.1'
     expect(re.test(source)).toBe(false)
 })
 test('15.10.2.3_A1_T6', () => {
-    let re = new Re('ab|cd|ef', 'i')
+    const re = new Re('ab|cd|ef', 'i')
 
-    let source = 'AEKFCD'
-    let result = re.match(source)
+    const source = 'AEKFCD'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['CD']
+    const expected: IMatchResult = ['CD']
     expected.index = 4
     expected.input = source
 
@@ -72,18 +72,18 @@ test('15.10.2.3_A1_T6', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T7', () => {
-    let re = new Re('ab|cd|ef')
+    const re = new Re('ab|cd|ef')
 
-    let source = 'AEKFCD'
+    const source = 'AEKFCD'
     expect(re.test(source)).toBe(false)
 })
 test('15.10.2.3_A1_T8', () => {
-    let re = new Re('(?:ab|cd)+|ef', 'i')
+    const re = new Re('(?:ab|cd)+|ef', 'i')
 
-    let source = 'AEKFCD'
-    let result = re.match(source)
+    const source = 'AEKFCD'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['CD']
+    const expected: IMatchResult = ['CD']
     expected.index = 4
     expected.input = source
 
@@ -92,12 +92,12 @@ test('15.10.2.3_A1_T8', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T9', () => {
-    let re = new Re('(?:ab|cd)+|ef', 'i')
+    const re = new Re('(?:ab|cd)+|ef', 'i')
 
-    let source = 'AEKFCDab'
-    let result = re.match(source)
+    const source = 'AEKFCDab'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['CDab']
+    const expected: IMatchResult = ['CDab']
     expected.index = 4
     expected.input = source
 
@@ -106,12 +106,12 @@ test('15.10.2.3_A1_T9', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T10', () => {
-    let re = new Re('(?:ab|cd)+|ef', 'i')
+    const re = new Re('(?:ab|cd)+|ef', 'i')
 
-    let source = 'AEKeFCDab'
-    let result = re.match(source)
+    const source = 'AEKeFCDab'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['eF']
+    const expected: IMatchResult = ['eF']
     expected.index = 3
     expected.input = source
 
@@ -120,12 +120,12 @@ test('15.10.2.3_A1_T10', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T11', () => {
-    let re = new Re('11111|111')
+    const re = new Re('11111|111')
 
-    let source = '1111111111111111'
-    let result = re.match(source)
+    const source = '1111111111111111'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['11111']
+    const expected: IMatchResult = ['11111']
     expected.index = 0
     expected.input = source
 
@@ -134,12 +134,12 @@ test('15.10.2.3_A1_T11', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T12', () => {
-    let re = new Re('xyz|...')
+    const re = new Re('xyz|...')
 
-    let source = 'abc'
-    let result = re.match(source)
+    const source = 'abc'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['abc']
+    const expected: IMatchResult = ['abc']
     expected.index = 0
     expected.input = source
 
@@ -148,12 +148,12 @@ test('15.10.2.3_A1_T12', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T13', () => {
-    let re = new Re('(.)..|abc')
+    const re = new Re('(.)..|abc')
 
-    let source = 'abc'
-    let result = re.match(source)
+    const source = 'abc'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['abc', 'a']
+    const expected: IMatchResult = ['abc', 'a']
     expected.index = 0
     expected.input = source
 
@@ -162,12 +162,12 @@ test('15.10.2.3_A1_T13', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T14', () => {
-    let re = new Re('.+: gr(a|e)y')
+    const re = new Re('.+: gr(a|e)y')
 
-    let source = 'color: grey'
-    let result = re.match(source)
+    const source = 'color: grey'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['color: grey', 'e']
+    const expected: IMatchResult = ['color: grey', 'e']
     expected.index = 0
     expected.input = source
 
@@ -176,12 +176,18 @@ test('15.10.2.3_A1_T14', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T15', () => {
-    let re = new Re('(Rob)|(Bob)|(Robert)|(Bobby)')
+    const re = new Re('(Rob)|(Bob)|(Robert)|(Bobby)')
 
-    let source = 'Hi Bob'
-    let result = re.match(source)
+    const source = 'Hi Bob'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['Bob', undefined, 'Bob', undefined, undefined]
+    const expected: IMatchResult = [
+        'Bob',
+        undefined,
+        'Bob',
+        undefined,
+        undefined
+    ]
     expected.index = 3
     expected.input = source
 
@@ -190,12 +196,12 @@ test('15.10.2.3_A1_T15', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T16', () => {
-    let re = new Re('()|')
+    const re = new Re('()|')
 
-    let source = ''
-    let result = re.match(source)
+    const source = ''
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['', '']
+    const expected: IMatchResult = ['', '']
     expected.index = 0
     expected.input = source
 
@@ -204,12 +210,12 @@ test('15.10.2.3_A1_T16', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.3_A1_T17', () => {
-    let re = new Re('|()')
+    const re = new Re('|()')
 
-    let source = ''
-    let result = re.match(source)
+    const source = ''
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['', undefined]
+    const expected: IMatchResult = ['', undefined]
     expected.index = 0
     expected.input = source
 

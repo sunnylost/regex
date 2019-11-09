@@ -1,13 +1,14 @@
-let yaml = require('js-yaml')
-let fs = require('fs')
-let { resolve } = require('path')
-let glob = require('glob')
-let prettier = require('prettier')
-let prettierrc = JSON.parse(
+const yaml = require('js-yaml')
+const fs = require('fs')
+const path = require('path')
+const { resolve } = require('path')
+const glob = require('glob')
+const prettier = require('prettier')
+const prettierrc = JSON.parse(
     fs.readFileSync(resolve(__dirname, '../../.prettierrc'), 'utf8')
 )
-let updateRecordFilePath = '../../unit-test-generate-info'
-let updateRecordFileName = 'info.json'
+const updateRecordFilePath = '../../unit-test-generate-info'
+const updateRecordFileName = 'info.json'
 let lastUpdateTime = {}
 
 const PREFIX = `
@@ -16,15 +17,15 @@ import { IMatchResult } from '../../types'
 `
 
 function generateContent(data) {
-    let content = []
+    const content = []
     data.forEach(unit => {
         Object.entries(unit).forEach(([k, v]) => {
             content.push(`test('${k}', () => {`)
             // console.log(v)
-            let re = v[0]
-            let match = v[1]
+            const re = v[0]
+            const match = v[1]
 
-            content.push(`let re = new Re('${re[0]}'`)
+            content.push(`const re = new Re('${re[0]}'`)
 
             if (re.length > 1) {
                 content.push(`, '${re[1]}')`)
@@ -33,23 +34,23 @@ function generateContent(data) {
             }
 
             if (match.length === 1) {
-                let source = match[0]
+                const source = match[0]
 
                 content.push(`
-    let source = '${source}'
+    const source = '${source}'
     expect(re.test(source)).toBe(false)`)
             } else {
-                let [source, matchResult, index] = match
+                const [source, matchResult, index] = match
 
                 matchResult.forEach((m, i) => {
                     matchResult[i] = m === 'undefined' ? 'undefined' : `'${m}'`
                 })
 
                 content.push(`
-    let source = '${source}'
-    let result = re.match(source)
+    const source = '${source}'
+    const result = re.match(source)
 
-    let expected: IMatchResult = [${matchResult}]
+    const expected: IMatchResult = [${matchResult}]
     expected.index = ${index}
     expected.input = source
 
@@ -68,12 +69,8 @@ function generateContent(data) {
 
 function loadLastUpdateTime() {
     return new Promise(res => {
-        console.log(
-            resolve(__dirname, updateRecordFilePath, updateRecordFileName)
-        )
-
         try {
-            let recordFileContent = fs.readFileSync(
+            const recordFileContent = fs.readFileSync(
                 resolve(__dirname, updateRecordFilePath, updateRecordFileName),
                 'utf8'
             )
@@ -90,8 +87,21 @@ function loadLastUpdateTime() {
 }
 
 function updateLastUpdateTime() {
+    const fileName = resolve(
+        __dirname,
+        updateRecordFilePath,
+        updateRecordFileName
+    )
+    const dir = path.dirname(fileName)
+
+    try {
+        fs.statSync(dir)
+    } catch (e) {
+        fs.mkdirSync(dir)
+    }
+
     fs.writeFileSync(
-        resolve(__dirname, updateRecordFilePath, updateRecordFileName),
+        fileName,
         JSON.stringify(lastUpdateTime, null, '  '),
         'utf8'
     )
@@ -104,18 +114,18 @@ function generate() {
         }
 
         files.forEach(v => {
-            let arr = v.split('/')
-            let filename = arr[arr.length - 1].replace('.yaml', '.ts')
-            let filePath = resolve(__dirname, v)
-            let modifyTime = '' + fs.statSync(filePath).mtimeMs
+            const arr = v.split('/')
+            const filename = arr[arr.length - 1].replace('.yaml', '.ts')
+            const filePath = resolve(__dirname, v)
+            const modifyTime = '' + fs.statSync(filePath).mtimeMs
 
             if (lastUpdateTime[filename] !== modifyTime) {
                 lastUpdateTime[filename] = modifyTime
 
-                let doc = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
+                const doc = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
 
                 if (doc) {
-                    let content = generateContent(doc)
+                    const content = generateContent(doc)
 
                     fs.writeFileSync(
                         resolve(__dirname, `../unit/${filename}`),

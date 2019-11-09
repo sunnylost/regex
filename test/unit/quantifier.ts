@@ -2,12 +2,12 @@ import Re from '../../src'
 import { IMatchResult } from '../../types'
 
 test('15.10.2.5_A1_T1', () => {
-    let re = new Re('a[a-z]{2,4}')
+    const re = new Re('a[a-z]{2,4}')
 
-    let source = 'abcdefghi'
-    let result = re.match(source)
+    const source = 'abcdefghi'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['abcde']
+    const expected: IMatchResult = ['abcde']
     expected.index = 0
     expected.input = source
 
@@ -16,12 +16,12 @@ test('15.10.2.5_A1_T1', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.5_A1_T2', () => {
-    let re = new Re('a[a-z]{2,4}?')
+    const re = new Re('a[a-z]{2,4}?')
 
-    let source = 'abcdefghi'
-    let result = re.match(source)
+    const source = 'abcdefghi'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['abc']
+    const expected: IMatchResult = ['abc']
     expected.index = 0
     expected.input = source
 
@@ -30,12 +30,12 @@ test('15.10.2.5_A1_T2', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.5_A1_T3', () => {
-    let re = new Re('(aa|aabaac|ba|b|c)*')
+    const re = new Re('(aa|aabaac|ba|b|c)*')
 
-    let source = 'aabaac'
-    let result = re.match(source)
+    const source = 'aabaac'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['aaba', 'ba']
+    const expected: IMatchResult = ['aaba', 'ba']
     expected.index = 0
     expected.input = source
 
@@ -44,12 +44,19 @@ test('15.10.2.5_A1_T3', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.5_A1_T4', () => {
-    let re = new Re('(z)((a+)?(b+)?(c))*')
+    const re = new Re('(z)((a+)?(b+)?(c))*')
 
-    let source = 'zaacbbbcac'
-    let result = re.match(source)
+    const source = 'zaacbbbcac'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['zaacbbbcac', 'z', 'ac', 'a', undefined, 'c']
+    const expected: IMatchResult = [
+        'zaacbbbcac',
+        'z',
+        'ac',
+        'a',
+        undefined,
+        'c'
+    ]
     expected.index = 0
     expected.input = source
 
@@ -58,12 +65,12 @@ test('15.10.2.5_A1_T4', () => {
     expect(result).toEqual(expected)
 })
 test('15.10.2.5_A1_T5', () => {
-    let re = new Re('(a*)b\\1+')
+    const re = new Re('(a*)b\\1+')
 
-    let source = 'baaaac'
-    let result = re.match(source)
+    const source = 'baaaac'
+    const result = re.match(source)
 
-    let expected: IMatchResult = ['b', '']
+    const expected: IMatchResult = ['b', '']
     expected.index = 0
     expected.input = source
 
