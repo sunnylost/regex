@@ -57,13 +57,13 @@ class Re implements IRe {
         const states = this.states
         const traceStack = this.traceStack
         const matchResult = []
-        let previousMatchResult = []
         const len = Math.max(source.length, 1)
         let i = 0
+        let preMatchedIndex = 0
+        let previousMatchResult = []
 
-        Loop: for (; i < len; i++) {
-            let preMatchedIndex = i
-
+        Loop: for (; i < len; ) {
+            // debugger
             this.isTraceback = false
 
             if (this.global && matchResult.length) {
@@ -76,29 +76,34 @@ class Re implements IRe {
 
             for (let j = 0; j < states.length; j++) {
                 const state = states[j]
-                const result = state.execute(this, preMatchedIndex)
+                const result = state.execute(this, i)
 
                 // debugger
                 if (!result.isMatched) {
                     // debugger
                     matchResult.length = 0
-                    preMatchedIndex = i
 
                     //TODO: when do we need to empty traceStack?
                     //TODO: can global influence backtrace?
                     if (traceStack.length) {
                         this.isTraceback = true
+                        i = preMatchedIndex
                         j = -1
                     } else {
+                        ++i
                         continue Loop
                     }
                 } else {
-                    preMatchedIndex += result.matchedStr.length
+                    i += result.matchedStr.length
                     matchResult.push(result.matchedStr)
                 }
             }
 
+            if (matchResult.length) {
+                preMatchedIndex = i - matchResult.join('').length
+            }
             //TODO: [] condition
+            // debugger
             if (!this.global && matchResult.length) {
                 break
             }
@@ -114,19 +119,17 @@ class Re implements IRe {
 
             const result: IMatchResult = [...previousMatchResult]
 
-            if (!this.global) {
-                if (this.groups) {
-                    Object.values(this.groups).forEach((v: IMatcher) => {
-                        const r = v.matchResult
-                        result.push(
-                            r && r.isMatched ? r.groupMatchedStr : undefined
-                        )
-                    })
-                }
-
-                result.index = i
-                result.input = source
+            if (!this.global && this.groups) {
+                Object.values(this.groups).forEach((v: IMatcher) => {
+                    const r = v.matchResult
+                    result.push(
+                        r && r.isMatched ? r.groupMatchedStr : undefined
+                    )
+                })
             }
+
+            result.index = preMatchedIndex
+            result.input = source
 
             return result
         } else {
