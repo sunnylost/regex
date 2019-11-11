@@ -1,6 +1,6 @@
 module.exports = {
     verbose: true,
-    testRegex: 'test/.*[ts]',
+    testRegex: 'test/.*\\.ts',
     moduleFileExtensions: ['ts', 'js'],
     testPathIgnorePatterns: ['/node_modules/'],
     transform: {
