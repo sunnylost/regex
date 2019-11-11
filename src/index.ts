@@ -5,7 +5,8 @@ const FLAGS_ACRONYM = {
     g: 'global',
     i: 'ignoreCase',
     m: 'multiline',
-    s: 'sticky'
+    s: 'dotAll',
+    y: 'sticky'
 }
 
 class Re implements IRe {
@@ -17,6 +18,7 @@ class Re implements IRe {
     source = ''
     groups
     isTraceback = false
+    dotAll = false
     global = false
     ignoreCase = false
     multiline = false

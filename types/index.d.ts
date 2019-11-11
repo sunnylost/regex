@@ -19,6 +19,7 @@ export declare interface IRe {
     source: string
     groups: {}
     isTraceback: boolean
+    dotAll: boolean
     global: boolean
     ignoreCase: boolean
     multiline: boolean
