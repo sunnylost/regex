@@ -6,36 +6,52 @@ import { IMatcher } from '../types'
 const SPECIAL_TRANSFER = 'bBdDsSwWtrnvf0'
 
 function spreadSet(matcher: IMatcher): void {
+    // debugger
     if (matcher.type !== Type.SET) {
         return
     }
 
-    let chars = matcher.value
+    let children = matcher.children
     const newChildren = []
 
-    if (chars[0] === '^') {
+    if (children[0].value === '^') {
         matcher.isNegative = true
-        chars = chars.slice(1)
+        children = children.slice(1)
     }
 
-    for (let i = 0; i < chars.length; i++) {
-        const c = chars[i]
-        // debugger
-        if (c !== '-' || i === 0) {
-            newChildren.push(v => v === c)
+    for (let i = 0; i < children.length; i++) {
+        const c = children[i]
+        const value = c.value
+
+        if (c.type === Type.SPECIAL_CHAR) {
+            newChildren.push({
+                type: c.type,
+                value
+            })
         } else {
-            newChildren.pop()
-            const a = chars[i - 1].charCodeAt(0)
-            const b = chars[i + 1] ? chars[i + 1].charCodeAt(0) : Infinity
+            // debugger
+            if (value !== '-' || i === 0) {
+                newChildren.push(v => v === value)
+            } else {
+                newChildren.pop()
+                const prevValue = children[i - 1].value
+                const nextChildren = children[i + 1]
+                const a = prevValue.charCodeAt(0)
+                const b = nextChildren
+                    ? nextChildren.value.charCodeAt(0)
+                    : Infinity
 
-            if (a > b) {
-                throw new SyntaxError(
-                    `Invalid regular expression: /${chars}/: Range out of order in character class`
+                if (a > b) {
+                    throw new SyntaxError(
+                        `Invalid regular expression: /${matcher.value}/: Range out of order in character class`
+                    )
+                }
+
+                newChildren.push(
+                    v => v.charCodeAt(0) >= a && v.charCodeAt(0) <= b
                 )
+                i += 1
             }
-
-            newChildren.push(v => v.charCodeAt(0) >= a && v.charCodeAt(0) <= b)
-            i += 1
         }
     }
 
@@ -46,7 +62,8 @@ function isContainerMatcher(matcher): boolean {
     return (
         matcher.isRoot ||
         (matcher.type === Type.GROUP && !matcher.isClosed) ||
-        matcher.type === Type.OR
+        matcher.type === Type.OR ||
+        matcher.type === Type.SET
     )
 }
 
@@ -163,31 +180,36 @@ export default pattern => {
 
     function consumeTransfer(): void {
         const c = pattern[i]
+        let matcher
 
+        /**
+         * TODO: [\b]
+         */
         if (SPECIAL_TRANSFER.includes(c)) {
             //TODO
-            const matcher = curMatcher
-
-            curMatcher = new Matcher({
-                type: Type.SPECIAL_CHAR,
-                value: c
-            })
-
-            appendChildren(matcher, curMatcher)
-        } else {
-            //TODO
-            if (isInCharacterSet) {
-                curMatcher.value += c
-            } else {
-                //TODO
-                const matcher = curMatcher
-
-                curMatcher = new Matcher({
-                    type: Type.CHAR,
+            appendChildren(
+                curMatcher,
+                (matcher = new Matcher({
+                    type: Type.SPECIAL_CHAR,
                     value: c
-                })
-                appendChildren(matcher, curMatcher)
-            }
+                }))
+            )
+        } else {
+            /**
+             * handle reference like \1, \2
+             * TODO: support more digits
+             */
+            appendChildren(
+                curMatcher,
+                (matcher = new Matcher({
+                    type: c >= '1' && c <= '9' ? Type.REFERENCE : Type.CHAR,
+                    value: c
+                }))
+            )
+        }
+
+        if (curMatcher.isRoot) {
+            curMatcher = matcher
         }
     }
 
@@ -207,7 +229,13 @@ export default pattern => {
 
         //TODO: not handle "\\]"
         if (isInCharacterSet && c !== '\\' && c !== ']') {
-            curMatcher.value += c
+            appendChildren(
+                curMatcher,
+                new Matcher({
+                    type: Type.CHAR,
+                    value: c
+                })
+            )
             continue
         }
         // debugger

@@ -1,13 +1,23 @@
 import Type from './key'
 import { IMatcher } from '../types'
 
-const isDotMatched = (c: string): boolean => {
-    return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
-}
+const matchCharacters = (cs: string[]) => {
+    return (c: string): boolean => {
+        for (let i = 0; i < cs.length; i++) {
+            const arr = cs[i].split('-')
 
-const isNumber = (c: string): boolean => {
-    const code = c.charCodeAt(0)
-    return code >= 48 && code <= 57
+            if (arr.length === 1) {
+                if (arr[0] === c) {
+                    return true
+                }
+            } else {
+                if (c >= arr[0] && c <= arr[1]) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 }
 
 const not = fn => {
@@ -16,9 +26,46 @@ const not = fn => {
     }
 }
 
+const isDotMatched = not(matchCharacters(['\n', '\r', '\u2028', '\u2029']))
+const isNumber = matchCharacters(['0-9'])
+const isAlphanumeric = matchCharacters(['A-Z', 'a-z', '0-9', '_'])
+
+/**
+ * TODO:
+ *    \b \B
+ *    \cX
+ *    \xhh
+ *    \uhhhh
+ *    \u{hhhh}
+ */
 const specialCharMatcher = {
+    0: matchCharacters(['\u0000']),
     d: isNumber,
-    D: not(isNumber)
+    D: not(isNumber),
+    f: matchCharacters(['\u000c']), //form feed
+    n: matchCharacters(['\u000a']), //line feed
+    r: matchCharacters(['\u000d']), //carriage return
+    s: matchCharacters([
+        ' ',
+        '\f',
+        '\n',
+        '\r',
+        '\t',
+        '\v',
+        '\u00a0',
+        '\u1680',
+        '\u2000-\u200a',
+        '\u2028',
+        '\u2029',
+        '\u202f',
+        '\u205f',
+        '\u3000',
+        '\ufeff'
+    ]),
+    t: matchCharacters(['\u0009']),
+    v: matchCharacters(['\u000b']),
+    w: isAlphanumeric,
+    W: not(isAlphanumeric)
 }
 
 function merge(leastMatch, localMatch): object {
@@ -106,6 +153,7 @@ class Matcher implements IMatcher {
         let min = quantifier.min
         const max = quantifier.max
         let offset = max - min
+        debugger
 
         if (config.isTraceback) {
             return this.handleTraceback(config, index)
@@ -126,7 +174,8 @@ class Matcher implements IMatcher {
                     if (result.isMatched) {
                         index += result.matchedStr.length
                         leastMatchResult.isMatched = true
-                        leastMatchResult.matchedStr += result.matchedStr
+                        leastMatchResult.groupMatchedStr = leastMatchResult.matchedStr +=
+                            result.matchedStr
                         leastMatchResult.index = index
                     } else {
                         //match failed
@@ -295,7 +344,13 @@ class Matcher implements IMatcher {
 
                 for (let i = 0; i < childrenLen; i++) {
                     const matcher = children[i]
-                    const result = matcher(checkChar)
+                    let result
+
+                    if (matcher.type === Type.SPECIAL_CHAR) {
+                        result = specialCharMatcher[matcher.value](checkChar)
+                    } else {
+                        result = matcher(checkChar)
+                    }
 
                     if (isNegative) {
                         if (!result) {
@@ -415,6 +470,23 @@ class Matcher implements IMatcher {
                         break
                 }
 
+                break
+
+            //TODO
+            case Type.REFERENCE:
+                const group = config.groups[this.value]
+
+                if (!group) {
+                    isMatched = true
+                } else {
+                    matchedStr = group.matchResult.groupMatchedStr || ''
+                    isMatched =
+                        matchedStr ===
+                        str.substring(
+                            lastCheckIndex,
+                            lastCheckIndex + matchedStr.length
+                        )
+                }
                 break
         }
 

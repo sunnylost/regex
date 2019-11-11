@@ -7,6 +7,7 @@ enum Type {
     CHAR = 'char', //xxx
     SPECIAL_CHAR = 'special-char', //\d, \D, \b...
     ALWAYS_PASS = 'always-pass', //TODO
-    EMPTY = 'empty'
+    EMPTY = 'empty',
+    REFERENCE = 'reference'
 }
 export default Type
