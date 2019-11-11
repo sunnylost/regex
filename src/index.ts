@@ -33,10 +33,10 @@ class Re implements IRe {
     }
 
     parseFlags() {
-        let flags = this.flags
+        const flags = this.flags
 
         for (let i = 0; i < flags.length; i++) {
-            let f = flags[i]
+            const f = flags[i]
 
             if (FLAGS_ACRONYM[f]) {
                 this[FLAGS_ACRONYM[f]] = true
@@ -52,10 +52,10 @@ class Re implements IRe {
 
     match(source) {
         this.source = source
-        let states = this.states
-        let traceStack = this.traceStack
-        let matchResult = []
-        let len = Math.max(source.length, 1)
+        const states = this.states
+        const traceStack = this.traceStack
+        const matchResult = []
+        const len = Math.max(source.length, 1)
         let i = 0
 
         Loop: for (; i < len; i++) {
@@ -65,8 +65,8 @@ class Re implements IRe {
             matchResult.length = traceStack.length = 0
 
             for (let j = 0; j < states.length; j++) {
-                let state = states[j]
-                let result = state.execute(this, preMatchedIndex)
+                const state = states[j]
+                const result = state.execute(this, preMatchedIndex)
 
                 // debugger
                 if (!result.isMatched) {
@@ -95,11 +95,11 @@ class Re implements IRe {
 
         //TODO: groups, global
         if (matchResult.length) {
-            let result: IMatchResult = [matchResult.join('')]
+            const result: IMatchResult = [matchResult.join('')]
 
             if (this.groups) {
                 Object.values(this.groups).forEach((v: IMatcher) => {
-                    let r = v.matchResult
+                    const r = v.matchResult
                     result.push(
                         r && r.isMatched ? r.groupMatchedStr : undefined
                     )
@@ -115,7 +115,7 @@ class Re implements IRe {
     }
 
     test(source) {
-        let result = this.match(source)
+        const result = this.match(source)
 
         return !!(result && result.length)
     }

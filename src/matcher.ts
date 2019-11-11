@@ -1,28 +1,28 @@
 import Type from './key'
 import { IMatcher } from '../types'
 
-let isDotMatched = c => {
+const isDotMatched = c => {
     return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
 }
 
-let isNumber = c => {
-    let code = c.charCodeAt(0)
+const isNumber = c => {
+    const code = c.charCodeAt(0)
     return code >= 48 && code <= 57
 }
 
-let not = fn => {
+const not = fn => {
     return function(...args) {
         return !fn.apply(this, args)
     }
 }
 
-let specialCharMatcher = {
+const specialCharMatcher = {
     d: isNumber,
     D: not(isNumber)
 }
 
 function merge(leastMatch, localMatch) {
-    let matchedStr =
+    const matchedStr =
         leastMatch.matchedStr +
         localMatch.reduce((a, b) => a + b.matchedStr, '')
     let groupMatchedStr
@@ -100,11 +100,11 @@ class Matcher implements IMatcher {
     }
 
     handleQuantifier(config, index) {
-        let traceStack = config.traceStack
-        let localTrackStack = []
-        let quantifier = this.quantifier
+        const traceStack = config.traceStack
+        const localTrackStack = []
+        const quantifier = this.quantifier
         let min = quantifier.min
-        let max = quantifier.max
+        const max = quantifier.max
         let offset = max - min
 
         if (config.isTraceback) {
@@ -113,7 +113,7 @@ class Matcher implements IMatcher {
             //TODO
             if (this.isGreedy) {
                 // debugger
-                let leastMatchResult = (this.leastMatchResult = {
+                const leastMatchResult = (this.leastMatchResult = {
                     isMatched: !min, // min === 0 means match
                     matchedStr: '',
                     groupMatchedStr: '',
@@ -121,7 +121,7 @@ class Matcher implements IMatcher {
                 })
 
                 while (min--) {
-                    let result = this.match(config, index)
+                    const result = this.match(config, index)
 
                     if (result.isMatched) {
                         index += result.matchedStr.length
@@ -138,7 +138,7 @@ class Matcher implements IMatcher {
 
                 // debugger
                 while (offset--) {
-                    let result = this.match(config, index)
+                    const result = this.match(config, index)
 
                     if (result.isMatched) {
                         localTrackStack.push(result)
@@ -178,7 +178,7 @@ class Matcher implements IMatcher {
                         index
                     })
                 } else {
-                    let leastMatchResult = (this.leastMatchResult = {
+                    const leastMatchResult = (this.leastMatchResult = {
                         isMatched: true,
                         matchedStr: '',
                         groupMatchedStr: '',
@@ -186,7 +186,7 @@ class Matcher implements IMatcher {
                     })
 
                     while (min--) {
-                        let result = this.match(config, index)
+                        const result = this.match(config, index)
 
                         if (result.isMatched) {
                             index += result.matchedStr.length
@@ -210,7 +210,7 @@ class Matcher implements IMatcher {
 
     handleTraceback(config, index) {
         let localTrackStack = []
-        let traceStack = config.traceStack
+        const traceStack = config.traceStack
 
         //TODO
         config.isTraceback = false
@@ -241,8 +241,8 @@ class Matcher implements IMatcher {
     }
 
     match(config, index = 0) {
-        let str = config.source
-        let maxIndex = Math.max(str.length, 1)
+        const str = config.source
+        const maxIndex = Math.max(str.length, 1)
         let isMatched = false
         let _index = 0
         let matchedStr = ''
@@ -260,14 +260,14 @@ class Matcher implements IMatcher {
         }
 
         let lastCheckIndex = (this.lastCheckIndex = index)
-        let children = this.children
-        let childrenLen = children.length
+        const children = this.children
+        const childrenLen = children.length
         let checkStr
         let checkChar
         // debugger
         switch (this.type) {
             case Type.CHAR:
-                let sourceStr = str.substring(
+                const sourceStr = str.substring(
                     lastCheckIndex,
                     lastCheckIndex + this.value.length
                 )
@@ -290,12 +290,12 @@ class Matcher implements IMatcher {
                 break
 
             case Type.SET:
-                let isNegative = this.isNegative
+                const isNegative = this.isNegative
                 checkChar = str[lastCheckIndex]
 
                 for (let i = 0; i < childrenLen; i++) {
-                    let matcher = children[i]
-                    let result = matcher(checkChar)
+                    const matcher = children[i]
+                    const result = matcher(checkChar)
 
                     if (isNegative) {
                         if (!result) {
@@ -317,11 +317,11 @@ class Matcher implements IMatcher {
                 for (let i = 0; i < childrenLen; i++) {
                     let index = lastCheckIndex
                     matchedStr = ''
-                    let item = children[i]
+                    const item = children[i]
 
                     for (let j = 0; j < item.length; j++) {
-                        let matcher = item[j]
-                        let result = matcher.execute(config, index)
+                        const matcher = item[j]
+                        const result = matcher.execute(config, index)
 
                         if (result.isMatched) {
                             isMatched = true
@@ -352,8 +352,8 @@ class Matcher implements IMatcher {
 
             case Type.GROUP:
                 for (let i = 0; i < childrenLen; i++) {
-                    let matcher = children[i]
-                    let result = matcher.execute(config, lastCheckIndex)
+                    const matcher = children[i]
+                    const result = matcher.execute(config, lastCheckIndex)
                     // debugger
                     if (result.isMatched) {
                         isMatched = true

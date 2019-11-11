@@ -11,7 +11,7 @@ function spreadSet(matcher: IMatcher) {
     }
 
     let chars = matcher.value
-    let newChildren = []
+    const newChildren = []
 
     if (chars[0] === '^') {
         matcher.isNegative = true
@@ -19,14 +19,14 @@ function spreadSet(matcher: IMatcher) {
     }
 
     for (let i = 0; i < chars.length; i++) {
-        let c = chars[i]
+        const c = chars[i]
         // debugger
         if (c !== '-' || i === 0) {
             newChildren.push(v => v === c)
         } else {
             newChildren.pop()
-            let a = chars[i - 1].charCodeAt(0)
-            let b = chars[i + 1] ? chars[i + 1].charCodeAt(0) : Infinity
+            const a = chars[i - 1].charCodeAt(0)
+            const b = chars[i + 1] ? chars[i + 1].charCodeAt(0) : Infinity
 
             if (a > b) {
                 throw new SyntaxError(
@@ -92,11 +92,11 @@ function isQuantifierValid(matcher, quantifier?) {
  * @returns {Array}
  */
 export default pattern => {
-    let len = pattern.length
+    const len = pattern.length
     let isInCharacterSet = false
     let captureIndex = 1
-    let groups = {}
-    let stack: IMatcher[] = [new Matcher({ isRoot: true })]
+    const groups = {}
+    const stack: IMatcher[] = [new Matcher({ isRoot: true })]
     let curMatcher: IMatcher = stack[0]
     let matcher: IMatcher
     let i
@@ -300,7 +300,7 @@ export default pattern => {
         let hasDot = false
 
         while (i < len) {
-            let c = pattern[i]
+            const c = pattern[i]
 
             if (c === '}') {
                 max = tmp.trim()
@@ -351,11 +351,11 @@ export default pattern => {
     }
 
     function consumeTransfer() {
-        let c = pattern[i]
+        const c = pattern[i]
 
         if (SPECIAL_TRANSFER.includes(c)) {
             //TODO
-            let matcher = curMatcher
+            const matcher = curMatcher
 
             curMatcher = new Matcher({
                 type: Type.SPECIAL_CHAR,
@@ -369,7 +369,7 @@ export default pattern => {
                 curMatcher.value += c
             } else {
                 //TODO
-                let matcher = curMatcher
+                const matcher = curMatcher
 
                 curMatcher = new Matcher({
                     type: Type.CHAR,
