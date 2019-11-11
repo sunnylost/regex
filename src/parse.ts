@@ -208,7 +208,7 @@ export default pattern => {
             )
         }
 
-        if (curMatcher.isRoot) {
+        if (curMatcher.type !== Type.SET) {
             curMatcher = matcher
         }
     }
