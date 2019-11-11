@@ -1,17 +1,17 @@
 import Type from './key'
 import { IMatcher } from '../types'
 
-const isDotMatched = c => {
+const isDotMatched = (c: string): boolean => {
     return c !== '\n' && c !== '\r' && c !== '\u2028' && c !== '\u2029'
 }
 
-const isNumber = c => {
+const isNumber = (c: string): boolean => {
     const code = c.charCodeAt(0)
     return code >= 48 && code <= 57
 }
 
 const not = fn => {
-    return function(...args) {
+    return function(...args): boolean {
         return !fn.apply(this, args)
     }
 }
@@ -21,7 +21,7 @@ const specialCharMatcher = {
     D: not(isNumber)
 }
 
-function merge(leastMatch, localMatch) {
+function merge(leastMatch, localMatch): object {
     const matchedStr =
         leastMatch.matchedStr +
         localMatch.reduce((a, b) => a + b.matchedStr, '')

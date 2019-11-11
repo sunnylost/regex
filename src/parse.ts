@@ -5,7 +5,7 @@ import { IMatcher } from '../types'
 
 const SPECIAL_TRANSFER = 'bBdDsSwWtrnvf0'
 
-function spreadSet(matcher: IMatcher) {
+function spreadSet(matcher: IMatcher): void {
     if (matcher.type !== Type.SET) {
         return
     }
@@ -42,7 +42,7 @@ function spreadSet(matcher: IMatcher) {
     matcher.children = newChildren
 }
 
-function isContainerMatcher(matcher) {
+function isContainerMatcher(matcher): boolean {
     return (
         matcher.isRoot ||
         (matcher.type === Type.GROUP && !matcher.isClosed) ||
@@ -50,7 +50,7 @@ function isContainerMatcher(matcher) {
     )
 }
 
-function appendChildren(parentMatcher, childMatcher) {
+function appendChildren(parentMatcher, childMatcher): void {
     let parent
     let children
 
@@ -72,7 +72,7 @@ function appendChildren(parentMatcher, childMatcher) {
 }
 
 //TODO
-function isQuantifierValid(matcher, quantifier?) {
+function isQuantifierValid(matcher, quantifier?): boolean {
     if (matcher.isRoot) {
         throw new Error('Nothing to repeat')
     }
@@ -103,6 +103,103 @@ export default pattern => {
     let c
     let parent
     let children
+
+    function consumeQuantifiers(): void {
+        let min: number | string = ''
+        let max: number | string = ''
+        let tmp = ''
+        let hasDot = false
+
+        while (i < len) {
+            const c = pattern[i]
+
+            if (c === '}') {
+                max = tmp.trim()
+
+                if (!min.length) {
+                    min = 0
+                } else {
+                    min = parseInt(min, 10)
+                }
+
+                if (!max.length) {
+                    max = Infinity
+                } else {
+                    max = parseInt(max, 10)
+                }
+
+                if (!hasDot) {
+                    min = max
+                }
+
+                if (min !== min || max !== max) {
+                    return //not valid
+                }
+
+                if (max < min) {
+                    throw new SyntaxError(
+                        `Invalid regular expression: /${pattern}/: numbers out of order in {} quantifier`
+                    )
+                }
+
+                curMatcher.quantifier = {
+                    min,
+                    max
+                }
+                return
+            }
+
+            tmp += c
+
+            if (c === ',') {
+                hasDot = true
+                min = tmp.trim()
+                tmp = ''
+            }
+
+            i++
+        }
+    }
+
+    function consumeTransfer(): void {
+        const c = pattern[i]
+
+        if (SPECIAL_TRANSFER.includes(c)) {
+            //TODO
+            const matcher = curMatcher
+
+            curMatcher = new Matcher({
+                type: Type.SPECIAL_CHAR,
+                value: c
+            })
+
+            appendChildren(matcher, curMatcher)
+        } else {
+            //TODO
+            if (isInCharacterSet) {
+                curMatcher.value += c
+            } else {
+                //TODO
+                const matcher = curMatcher
+
+                curMatcher = new Matcher({
+                    type: Type.CHAR,
+                    value: c
+                })
+                appendChildren(matcher, curMatcher)
+            }
+        }
+    }
+
+    function expect(str): boolean {
+        for (let j = 0; j < str.length; j++) {
+            if (pattern[i + j + 1] !== str[j]) {
+                return false
+            }
+        }
+
+        return true
+    }
 
     for (i = 0; i < len; i++) {
         c = pattern[i]
@@ -291,102 +388,5 @@ export default pattern => {
     return {
         states: stack[0].children,
         groups
-    }
-
-    function consumeQuantifiers() {
-        let min: number | string = ''
-        let max: number | string = ''
-        let tmp = ''
-        let hasDot = false
-
-        while (i < len) {
-            const c = pattern[i]
-
-            if (c === '}') {
-                max = tmp.trim()
-
-                if (!min.length) {
-                    min = 0
-                } else {
-                    min = parseInt(min, 10)
-                }
-
-                if (!max.length) {
-                    max = Infinity
-                } else {
-                    max = parseInt(max, 10)
-                }
-
-                if (!hasDot) {
-                    min = max
-                }
-
-                if (min !== min || max !== max) {
-                    return //not valid
-                }
-
-                if (max < min) {
-                    throw new SyntaxError(
-                        `Invalid regular expression: /${pattern}/: numbers out of order in {} quantifier`
-                    )
-                }
-
-                curMatcher.quantifier = {
-                    min,
-                    max
-                }
-                return
-            }
-
-            tmp += c
-
-            if (c === ',') {
-                hasDot = true
-                min = tmp.trim()
-                tmp = ''
-            }
-
-            i++
-        }
-    }
-
-    function consumeTransfer() {
-        const c = pattern[i]
-
-        if (SPECIAL_TRANSFER.includes(c)) {
-            //TODO
-            const matcher = curMatcher
-
-            curMatcher = new Matcher({
-                type: Type.SPECIAL_CHAR,
-                value: c
-            })
-
-            appendChildren(matcher, curMatcher)
-        } else {
-            //TODO
-            if (isInCharacterSet) {
-                curMatcher.value += c
-            } else {
-                //TODO
-                const matcher = curMatcher
-
-                curMatcher = new Matcher({
-                    type: Type.CHAR,
-                    value: c
-                })
-                appendChildren(matcher, curMatcher)
-            }
-        }
-    }
-
-    function expect(str) {
-        for (let j = 0; j < str.length; j++) {
-            if (pattern[i + j + 1] !== str[j]) {
-                return false
-            }
-        }
-
-        return true
     }
 }
