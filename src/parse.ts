@@ -61,7 +61,8 @@ function spreadSet(matcher: IMatcher): void {
 function isContainerMatcher(matcher): boolean {
     return (
         matcher.isRoot ||
-        (matcher.type === Type.GROUP && !matcher.isClosed) ||
+        ((matcher.type === Type.GROUP || matcher.type === Type.LOOK_AROUND) &&
+            !matcher.isClosed) ||
         matcher.type === Type.OR ||
         matcher.type === Type.SET
     )
@@ -243,7 +244,31 @@ export default pattern => {
             case '(':
                 matcher = curMatcher
 
-                if (expect('?:')) {
+                if (expect('?=')) {
+                    i += 2
+                    curMatcher = new Matcher({
+                        type: Type.LOOK_AROUND,
+                        value: '?='
+                    })
+                } else if (expect('?!')) {
+                    i += 2
+                    curMatcher = new Matcher({
+                        type: Type.LOOK_AROUND,
+                        value: '?!'
+                    })
+                } else if (expect('?<=')) {
+                    i += 3
+                    curMatcher = new Matcher({
+                        type: Type.LOOK_AROUND,
+                        value: '?<='
+                    })
+                } else if (expect('?<!')) {
+                    i += 3
+                    curMatcher = new Matcher({
+                        type: Type.LOOK_AROUND,
+                        value: '?<!'
+                    })
+                } else if (expect('?:')) {
                     i += 2
                     curMatcher = new Matcher({
                         type: Type.GROUP
@@ -279,7 +304,10 @@ export default pattern => {
 
                     curMatcher = curMatcher.parent
 
-                    if (curMatcher.type === Type.GROUP) {
+                    if (
+                        curMatcher.type === Type.GROUP ||
+                        curMatcher.type === Type.LOOK_AROUND
+                    ) {
                         curMatcher.isClosed = true
                         break
                     }

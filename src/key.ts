@@ -8,6 +8,7 @@ enum Type {
     SPECIAL_CHAR = 'special-char', //\d, \D, \b...
     ALWAYS_PASS = 'always-pass', //TODO
     EMPTY = 'empty',
-    REFERENCE = 'reference'
+    REFERENCE = 'reference',
+    LOOK_AROUND = 'look-around'
 }
 export default Type
