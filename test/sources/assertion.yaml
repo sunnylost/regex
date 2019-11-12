@@ -117,3 +117,35 @@
 - 15.10.2.6_A3_T15:
     - ['\\be']
     - ['pilot\nsoviet robot\topenoffic\u0065']
+
+- 15.10.2.6_A4_T1:
+    - ['\\Bevil\\B']
+    - ['devils arise\tfor\nevil', ['evil'], 1]
+
+- 15.10.2.6_A4_T2:
+    - ['[f-z]e\\B']
+    - ['devils arise\tfor\nrevil', ['re'], 17]
+
+- 15.10.2.6_A4_T3:
+    - ['\\Bo\\B', 'i']
+    - ['devils arise\tfOr\nrevil', ['O'], 14]
+
+- 15.10.2.6_A4_T4:
+    - ['\\B\\w\\B']
+    - ['devils arise\tfor\nrevil', ['e'], 1]
+
+- 15.10.2.6_A4_T5:
+    - ['\\w\\B']
+    - ['devils arise\tfor\nrevil', ['d'], 0]
+
+- 15.10.2.6_A4_T6:
+    - ['\\B\\w']
+    - ['devils arise\tfor\nrevil', ['e'], 1]
+
+- 15.10.2.6_A4_T7:
+    - ['\\B[^z]{4}\\B']
+    - ['devil arise\tforzzx\nevils', ['il a'], 3]
+
+- 15.10.2.6_A4_T1:
+    - ['\\B\\w{4}\\B']
+    - ['devil arise\tforzzx\nevils', ['orzz'], 13]

@@ -179,7 +179,6 @@ test('15.10.2.6_A2_T10', () => {
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
 })
-
 test('15.10.2.6_A3_T1', () => {
     const re = new Re('\\bp')
 
@@ -194,7 +193,6 @@ test('15.10.2.6_A3_T1', () => {
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
 })
-
 test('15.10.2.6_A3_T2', () => {
     const re = new Re('ot\\b')
 
@@ -350,4 +348,116 @@ test('15.10.2.6_A3_T15', () => {
 
     const source = 'pilot\nsoviet robot\topenoffic\u0065'
     expect(re.test(source)).toBe(false)
+})
+test('15.10.2.6_A4_T1', () => {
+    const re = new Re('\\Bevil\\B')
+
+    const source = 'devils arise\tfor\nevil'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['evil']
+    expected.index = 1
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A4_T2', () => {
+    const re = new Re('[f-z]e\\B')
+
+    const source = 'devils arise\tfor\nrevil'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['re']
+    expected.index = 17
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A4_T3', () => {
+    const re = new Re('\\Bo\\B', 'i')
+
+    const source = 'devils arise\tfOr\nrevil'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['O']
+    expected.index = 14
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A4_T4', () => {
+    const re = new Re('\\B\\w\\B')
+
+    const source = 'devils arise\tfor\nrevil'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['e']
+    expected.index = 1
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A4_T5', () => {
+    const re = new Re('\\w\\B')
+
+    const source = 'devils arise\tfor\nrevil'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['d']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A4_T6', () => {
+    const re = new Re('\\B\\w')
+
+    const source = 'devils arise\tfor\nrevil'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['e']
+    expected.index = 1
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A4_T7', () => {
+    const re = new Re('\\B[^z]{4}\\B')
+
+    const source = 'devil arise\tforzzx\nevils'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['il a']
+    expected.index = 3
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A4_T1', () => {
+    const re = new Re('\\B\\w{4}\\B')
+
+    const source = 'devil arise\tforzzx\nevils'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['orzz']
+    expected.index = 13
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
 })
