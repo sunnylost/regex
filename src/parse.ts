@@ -64,7 +64,7 @@ function isContainerMatcher(matcher): boolean {
         ((matcher.type === Type.GROUP || matcher.type === Type.LOOK_AROUND) &&
             !matcher.isClosed) ||
         matcher.type === Type.OR ||
-        matcher.type === Type.SET
+        (matcher.type === Type.SET && !matcher.isClosed)
     )
 }
 
@@ -321,6 +321,7 @@ export default pattern => {
                 isInCharacterSet = true
                 break
             case ']':
+                curMatcher.isClosed = true
                 isInCharacterSet = false
                 spreadSet(curMatcher)
                 break
