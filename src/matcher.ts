@@ -40,6 +40,7 @@ const isAlphanumeric = matchCharacters(['A-Z', 'a-z', '0-9', '_'])
  */
 const specialCharMatcher = {
     0: matchCharacters(['\u0000']),
+    b: matchCharacters(['\u0008']), //backspace [\b]
     d: isNumber,
     D: not(isNumber),
     f: matchCharacters(['\u000c']), //form feed
@@ -88,6 +89,15 @@ function merge(leastMatch, localMatch): object {
         groupMatchedStr,
         index: leastMatch.index + localMatch.length
     }
+}
+
+function isInWordCharacters(c): boolean {
+    return (
+        (c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9') ||
+        c === '_'
+    )
 }
 
 class Matcher implements IMatcher {
@@ -265,7 +275,7 @@ class Matcher implements IMatcher {
         config.isTraceback = false
 
         if (this.isGreedy) {
-            debugger
+            // debugger
             //TODO
             localTrackStack = this.localTrackStack
 
@@ -424,7 +434,11 @@ class Matcher implements IMatcher {
 
             case Type.SPECIAL_CHAR:
                 checkChar = str[lastCheckIndex]
-                isMatched = specialCharMatcher[this.value](checkChar)
+                isMatched = specialCharMatcher[this.value](
+                    checkChar,
+                    config,
+                    index
+                )
 
                 if (isMatched) {
                     matchedStr = checkChar
@@ -467,6 +481,19 @@ class Matcher implements IMatcher {
                         if (!lastCheckIndex) {
                             isMatched = true
                         }
+                        break
+
+                    //TODO
+                    case 'b':
+                        isMatched =
+                            isInWordCharacters(str[lastCheckIndex - 1]) !==
+                            isInWordCharacters(str[lastCheckIndex])
+                        break
+
+                    case 'B':
+                        isMatched =
+                            isInWordCharacters(str[lastCheckIndex - 1]) ===
+                            isInWordCharacters(str[lastCheckIndex])
                         break
                 }
 

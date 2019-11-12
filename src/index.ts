@@ -49,7 +49,7 @@ class Re implements IRe {
     }
 
     parseStates() {
-        ;({ states: this.states, groups: this.groups } = Parse(this.pattern))
+        ;({ states: this.states, groups: this.groups } = Parse(this))
     }
 
     match(source) {
@@ -65,6 +65,7 @@ class Re implements IRe {
         Loop: for (; i < len; ) {
             // debugger
             this.isTraceback = false
+            let localMatchIndex = i
 
             if (this.global && matchResult.length) {
                 previousMatchResult = previousMatchResult.concat(
@@ -76,7 +77,7 @@ class Re implements IRe {
 
             for (let j = 0; j < states.length; j++) {
                 const state = states[j]
-                const result = state.execute(this, i)
+                const result = state.execute(this, localMatchIndex)
 
                 // debugger
                 if (!result.isMatched) {
@@ -87,21 +88,24 @@ class Re implements IRe {
                     //TODO: can global influence backtrace?
                     if (traceStack.length) {
                         this.isTraceback = true
-                        i = preMatchedIndex
+                        i = localMatchIndex = preMatchedIndex
                         j = -1
                     } else {
                         ++i
                         continue Loop
                     }
                 } else {
-                    i += result.matchedStr.length
+                    localMatchIndex += result.matchedStr.length
                     matchResult.push(result.matchedStr)
                 }
             }
 
+            i = localMatchIndex
+
             if (matchResult.length) {
                 preMatchedIndex = i - matchResult.join('').length
             }
+
             //TODO: [] condition
             // debugger
             if (!this.global && matchResult.length) {

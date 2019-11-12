@@ -3,7 +3,11 @@ import Type from './key'
 import Matcher from './matcher'
 import { IMatcher } from '../types'
 
-const SPECIAL_TRANSFER = 'bBdDsSwWtrnvf0'
+const SPECIAL_TRANSFER = 'dDsSwWtrnvf0'
+
+function isDigit(c): boolean {
+    return c >= '0' && c <= '9'
+}
 
 function spreadSet(matcher: IMatcher): void {
     // debugger
@@ -11,6 +15,7 @@ function spreadSet(matcher: IMatcher): void {
         return
     }
 
+    const isIgnoreCase = this.ignoreCase
     let children = matcher.children
     const newChildren = []
 
@@ -21,7 +26,7 @@ function spreadSet(matcher: IMatcher): void {
 
     for (let i = 0; i < children.length; i++) {
         const c = children[i]
-        const value = c.value
+        let value = c.value
 
         if (c.type === Type.SPECIAL_CHAR) {
             newChildren.push({
@@ -29,17 +34,31 @@ function spreadSet(matcher: IMatcher): void {
                 value
             })
         } else {
+            if (isIgnoreCase) {
+                value = value.toLowerCase()
+            }
             // debugger
             if (value !== '-' || i === 0) {
-                newChildren.push(v => v === value)
+                newChildren.push(v => {
+                    if (isIgnoreCase && v) {
+                        v = v.toLowerCase()
+                    }
+
+                    return v === value
+                })
             } else {
                 newChildren.pop()
-                const prevValue = children[i - 1].value
+                let prevValue = children[i - 1].value
                 const nextChildren = children[i + 1]
+                let nextValue = nextChildren && nextChildren.value
+
+                if (isIgnoreCase) {
+                    prevValue = prevValue.toLowerCase()
+                    nextValue && (nextValue = nextValue.toLowerCase())
+                }
+
                 const a = prevValue.charCodeAt(0)
-                const b = nextChildren
-                    ? nextChildren.value.charCodeAt(0)
-                    : Infinity
+                const b = nextChildren ? nextValue.charCodeAt(0) : Infinity
 
                 if (a > b) {
                     throw new SyntaxError(
@@ -47,9 +66,13 @@ function spreadSet(matcher: IMatcher): void {
                     )
                 }
 
-                newChildren.push(
-                    v => v.charCodeAt(0) >= a && v.charCodeAt(0) <= b
-                )
+                newChildren.push(v => {
+                    if (isIgnoreCase) {
+                        v = v.toLowerCase()
+                    }
+
+                    return v.charCodeAt(0) >= a && v.charCodeAt(0) <= b
+                })
                 i += 1
             }
         }
@@ -106,10 +129,11 @@ function isQuantifierValid(matcher, quantifier?): boolean {
 
 /**
  * construct a matcher tree
- * @param pattern
+ * @param ctx
  * @returns {Array}
  */
-export default pattern => {
+export default ctx => {
+    const pattern = ctx.pattern
     const len = pattern.length
     let isInCharacterSet = false
     let captureIndex = 1
@@ -183,10 +207,7 @@ export default pattern => {
         const c = pattern[i]
         let matcher
 
-        /**
-         * TODO: [\b]
-         */
-        if (SPECIAL_TRANSFER.includes(c)) {
+        if (SPECIAL_TRANSFER.includes(c) || (isInCharacterSet && c === 'b')) {
             //TODO
             appendChildren(
                 curMatcher,
@@ -195,15 +216,43 @@ export default pattern => {
                     value: c
                 }))
             )
-        } else {
-            /**
-             * handle reference like \1, \2
-             * TODO: support more digits
-             */
+        } else if (c === 'b' || c === 'B') {
             appendChildren(
                 curMatcher,
                 (matcher = new Matcher({
-                    type: c >= '1' && c <= '9' ? Type.REFERENCE : Type.CHAR,
+                    type: Type.ASSERT,
+                    value: c
+                }))
+            )
+            /**
+             * handle reference like \1, \2
+             * groupIndex is a non-zero digit
+             */
+        } else if (isDigit(c) && c !== '0') {
+            let num = ''
+
+            while (1) {
+                if (isDigit(pattern[i])) {
+                    num += pattern[i]
+                    i++
+                } else {
+                    i--
+                    break
+                }
+            }
+
+            appendChildren(
+                curMatcher,
+                (matcher = new Matcher({
+                    type: Type.REFERENCE,
+                    value: num
+                }))
+            )
+        } else {
+            appendChildren(
+                curMatcher,
+                (matcher = new Matcher({
+                    type: Type.CHAR,
                     value: c
                 }))
             )
@@ -323,7 +372,7 @@ export default pattern => {
             case ']':
                 curMatcher.isClosed = true
                 isInCharacterSet = false
-                spreadSet(curMatcher)
+                spreadSet.call(ctx, curMatcher)
                 break
             case '{':
                 isQuantifierValid(curMatcher, c)
