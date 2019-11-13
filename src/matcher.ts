@@ -100,6 +100,10 @@ function isInWordCharacters(c): boolean {
     )
 }
 
+function isContainerType(type: string): boolean {
+    return type === Type.GROUP || type === Type.OR
+}
+
 class Matcher implements IMatcher {
     type
     value
@@ -144,8 +148,9 @@ class Matcher implements IMatcher {
     }
 
     execute(config, index = 0) {
+        //debugger
         if (!this.quantifier) {
-            if (config.isTraceback) {
+            if (config.isTraceback && !isContainerType(this.type)) {
                 // console.log('last match result', this.matchResult)
                 return this.matchResult
             } else {
@@ -163,7 +168,7 @@ class Matcher implements IMatcher {
         let min = quantifier.min
         const max = quantifier.max
         let offset = max - min
-        debugger
+        // debugger
 
         if (config.isTraceback) {
             return this.handleTraceback(config, index)
