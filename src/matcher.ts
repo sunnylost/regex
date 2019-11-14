@@ -122,6 +122,7 @@ class Matcher implements IMatcher {
     localTrackStack
     preMatchedIndex = 0
     preMatchResult
+    matchedCount = 0
 
     constructor({
         type,
@@ -170,7 +171,7 @@ class Matcher implements IMatcher {
         let offset = max - min
         // debugger
 
-        if (config.isTraceback) {
+        if (config.isTraceback && traceStack.indexOf(this) !== -1) {
             return this.handleTraceback(config, index)
         } else {
             //TODO
@@ -231,10 +232,8 @@ class Matcher implements IMatcher {
                 }
             } else {
                 if (min === 0) {
-                    traceStack.push({
-                        matcher: this
-                    })
-                    return (this.matchResult = {
+                    traceStack.push(this)
+                    return (this.matchResult = this.leastMatchResult = {
                         isMatched: true,
                         config,
                         matchedStr: '',
@@ -253,12 +252,14 @@ class Matcher implements IMatcher {
                         const result = this.match(config, index)
 
                         if (result.isMatched) {
+                            this.matchedCount++
                             index += result.matchedStr.length
                             leastMatchResult.matchedStr += result.matchedStr
                             leastMatchResult.groupMatchedStr =
                                 leastMatchResult.matchedStr
                             leastMatchResult.index = index
                         } else {
+                            this.matchedCount = 0
                             //match failed
                             return {
                                 isMatched: false
@@ -276,15 +277,14 @@ class Matcher implements IMatcher {
         let localTrackStack = []
         const traceStack = config.traceStack
 
-        //TODO
-        config.isTraceback = false
-
         if (this.isGreedy) {
-            // debugger
+            debugger
             //TODO
             localTrackStack = this.localTrackStack
 
             if (localTrackStack.length) {
+                //TODO
+                config.isTraceback = false
                 localTrackStack.pop()
                 return (this.matchResult = merge.call(
                     this,
@@ -301,6 +301,32 @@ class Matcher implements IMatcher {
             }
         } else {
             //TODO: non-greedy traceback
+            const leastMatchResult = this.leastMatchResult
+
+            if (this.matchedCount < this.quantifier.max) {
+                const result = this.match(config, index)
+
+                if (result.isMatched) {
+                    //TODO
+                    config.isTraceback = false
+                    this.matchedCount++
+                    index += result.matchedStr.length
+                    leastMatchResult.matchedStr += result.matchedStr
+                    leastMatchResult.groupMatchedStr =
+                        leastMatchResult.matchedStr
+                    leastMatchResult.index = index
+                    return (this.matchResult = leastMatchResult)
+                } else {
+                    traceStack.splice(traceStack.indexOf(this), 1)
+                    this.matchedCount = 0
+                    //match failed
+                    return {
+                        isMatched: false
+                    }
+                }
+            } else {
+                return this.matchResult
+            }
         }
     }
 
@@ -439,11 +465,7 @@ class Matcher implements IMatcher {
 
             case Type.SPECIAL_CHAR:
                 checkChar = str[lastCheckIndex]
-                isMatched = specialCharMatcher[this.value](
-                    checkChar,
-                    config,
-                    index
-                )
+                isMatched = specialCharMatcher[this.value](checkChar)
 
                 if (isMatched) {
                     matchedStr = checkChar
