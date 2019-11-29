@@ -126,7 +126,7 @@ class Re implements IRe {
             }
 
             const result: IMatchResult = [...previousMatchResult]
-
+            // debugger
             if (!this.global && this.groups) {
                 Object.values(this.groups).forEach((v: IMatcher) => {
                     const r = v.matchResult
@@ -147,7 +147,7 @@ class Re implements IRe {
         }
     }
 
-    test(source) {
+    test(source): boolean {
         const result = this.match(source)
 
         return !!(result && result.length)

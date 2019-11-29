@@ -152,7 +152,6 @@ class Matcher implements IMatcher {
         //debugger
         if (!this.quantifier) {
             if (config.isTraceback && !isContainerType(this.type)) {
-                // console.log('last match result', this.matchResult)
                 return this.matchResult
             } else {
                 return this.match(config, index)
@@ -207,26 +206,31 @@ class Matcher implements IMatcher {
 
                     if (result.isMatched) {
                         localTrackStack.push(result)
-                        index += result.matchedStr
-                            ? result.matchedStr.length
-                            : 1
-                        min++
+
+                        if (result.matchedStr && result.matchedStr.length) {
+                            index += result.matchedStr.length
+                        } else {
+                            break
+                        }
                     } else {
                         break
                     }
                 }
 
                 if (localTrackStack.length) {
-                    if (traceStack.indexOf(this)) {
+                    if (traceStack.indexOf(this) !== -1) {
                         traceStack.splice(traceStack.indexOf(this), 1)
                     }
+
                     traceStack.push(this)
                     this.localTrackStack = localTrackStack
-                    return (this.matchResult = merge.call(
+                    this.matchResult = merge.call(
                         this,
                         leastMatchResult,
                         localTrackStack
-                    ))
+                    )
+
+                    return this.matchResult
                 } else {
                     return leastMatchResult
                 }
@@ -278,7 +282,7 @@ class Matcher implements IMatcher {
         const traceStack = config.traceStack
 
         if (this.isGreedy) {
-            debugger
+            // debugger
             //TODO
             localTrackStack = this.localTrackStack
 
@@ -304,10 +308,9 @@ class Matcher implements IMatcher {
             const leastMatchResult = this.leastMatchResult
 
             if (this.matchedCount < this.quantifier.max) {
-                const result = this.match(config, index)
-
+                const result = this.match(config, this.matchedCount + index)
+                // debugger
                 if (result.isMatched) {
-                    //TODO
                     config.isTraceback = false
                     this.matchedCount++
                     index += result.matchedStr.length
@@ -332,28 +335,16 @@ class Matcher implements IMatcher {
 
     match(config, index = 0) {
         const str = config.source
-        const maxIndex = Math.max(str.length, 1)
+        const children = this.children
+        const childrenLen = children.length
+
         let isMatched = false
         let _index = 0
         let matchedStr = ''
-        // debugger
-        if (index > maxIndex) {
-            return {
-                isMatched: false
-            }
-        }
-
-        if (index === maxIndex && this.type !== Type.ASSERT) {
-            return {
-                isMatched: false
-            }
-        }
-
         let lastCheckIndex = (this.lastCheckIndex = index)
-        const children = this.children
-        const childrenLen = children.length
         let checkStr
         let checkChar
+
         // debugger
         switch (this.type) {
             case Type.CHAR:
@@ -551,6 +542,52 @@ class Matcher implements IMatcher {
             groupMatchedStr: matchedStr,
             index: _index
         })
+    }
+
+    //For Test
+    toString(): string {
+        const quantifierToString = (): string => {
+            const q = this.quantifier
+            let str = ''
+
+            if (q) {
+                const { min, max } = q
+
+                if (min === 0 && max === 1) {
+                    str += '?'
+                } else if (min === 0 && max === Infinity) {
+                    str += '*'
+                } else if (min === 1 && max === Infinity) {
+                    str += '+'
+                } else {
+                    str += `{${min || 0},${max || ''}`
+                }
+
+                if (!this.isGreedy) {
+                    str += '?'
+                }
+            }
+
+            return str
+        }
+
+        switch (this.type) {
+            case Type.CHAR:
+            case Type.ASSERT:
+            case Type.DOT:
+                return this.value + quantifierToString()
+
+            case Type.GROUP:
+                return (
+                    '(' +
+                    this.children.map(v => v.toString()).join('') +
+                    ')' +
+                    quantifierToString()
+                )
+
+            default:
+                return 'not implement:' + this.type
+        }
     }
 }
 

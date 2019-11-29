@@ -53,4 +53,5 @@ export declare interface IMatcher {
     match(config: IRe, index: number): any
     handleQuantifier(config: IRe, index: number): any
     handleTraceback(config: IRe, index: number): any
+    toString(): string
 }

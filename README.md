@@ -6,7 +6,7 @@
 - [ ] Character Classes
     - [x] .
     - [x] \d
-    - [ ] \D
+    - [x] \D
     - [ ] \w
     - [ ] \W
     - [ ] \s
@@ -16,20 +16,20 @@
     - [ ] \n
     - [ ] \v
     - [ ] \f
-    - ...
-- [ ] Character Sets
+    - [ ] ...
+- [x] Character Sets
     - [x] \[xyz]
     - [x] \[^xyz]
 - [ ] Boundaries
     - [ ] ^
     - [ ] $
-    - [ ] \b
-    - [ ] \B
-- [ ] Alternation
+    - [x] \b
+    - [x] \B
+- [x] Alternation
     - [x] x|y
-- [ ] Grouping and back references
+- [x] Grouping and back references
     - [x] \(x)
-    - [ ] \n
+    - [x] \n
     - [x] \(:?x)
 - [ ] Quantifiers
     - [x] x*
@@ -48,8 +48,14 @@
     - [ ] x(?=y)
     - [ ] x(?!y)
 - [ ] flags
-    - [ ] global
+    - [x] global
     - [ ] ignore case
     - [ ] multiline
     - [ ] unicode
     - [ ] sticky
+
+## Reference Material
+
+- [MDN's regular expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
+- [Learn Regex The Easy Way](https://github.com/ziishaned/learn-regex)
+- [Regular-Expression info](https://www.regular-expressions.info/)
