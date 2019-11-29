@@ -447,7 +447,7 @@ test('15.10.2.6_A4_T7', () => {
     expect(result.index).toBe(expected.index)
     expect(result).toEqual(expected)
 })
-test('15.10.2.6_A4_T1', () => {
+test('15.10.2.6_A4_T8', () => {
     const re = new Re('\\B\\w{4}\\B')
 
     const source = 'devil arise\tforzzx\nevils'
@@ -455,6 +455,90 @@ test('15.10.2.6_A4_T1', () => {
 
     const expected: IMatchResult = ['orzz']
     expected.index = 13
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A5_T1', () => {
+    const re = new Re('^^^^^^^robot$$$$')
+
+    const source = 'robot'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['robot']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A5_T2', () => {
+    const re = new Re('\\B\\B\\B\\B\\B\\Bbot\\b\\b\\b\\b\\b\\b\\b')
+
+    const source = 'robot wall-e'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['bot']
+    expected.index = 2
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A6_T1', () => {
+    const re = new Re('^.*?$')
+
+    const source = 'Hello World'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['Hello World']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A6_T2', () => {
+    const re = new Re('^.*?')
+
+    const source = 'Hello World'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A6_T3', () => {
+    const re = new Re('^.*?(:|$)')
+
+    const source = 'Hello: World'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['Hello:', ':']
+    expected.index = 0
+    expected.input = source
+
+    expect(result.length).toBe(expected.length)
+    expect(result.index).toBe(expected.index)
+    expect(result).toEqual(expected)
+})
+test('15.10.2.6_A6_T4', () => {
+    const re = new Re('^.*(:|$)')
+
+    const source = 'Hello: World'
+    const result = re.match(source)
+
+    const expected: IMatchResult = ['Hello: World', '']
+    expected.index = 0
     expected.input = source
 
     expect(result.length).toBe(expected.length)
