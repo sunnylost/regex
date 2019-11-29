@@ -8,10 +8,11 @@ export declare interface IQuantifier {
 export declare interface IMatchResult extends Array<string> {
     input?: string
     index?: number
+    groups?: undefined | Array<string>
 }
 
 export declare interface IRe {
-    pattern: string
+    pattern: string | RegExp
     flags: string
     lastIndex: number
     traceStack: IMatcher[]

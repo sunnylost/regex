@@ -24,7 +24,11 @@ class Re implements IRe {
     multiline = false
     sticky = false
 
-    constructor(pattern: string, flags?: string) {
+    constructor(pattern: string | RegExp, flags?: string) {
+        if (pattern instanceof RegExp) {
+            pattern = pattern.source
+        }
+
         this.pattern = pattern
         this.flags = flags || ''
         this.lastIndex = 0
@@ -134,6 +138,8 @@ class Re implements IRe {
 
             result.index = preMatchedIndex
             result.input = source
+            // noinspection SillyAssignmentJS
+            result.groups = result.groups // array or undefined
 
             return result
         } else {
