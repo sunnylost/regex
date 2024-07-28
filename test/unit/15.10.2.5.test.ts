@@ -1,3 +1,4 @@
+import { test, expect } from 'bun:test'
 import Re from '../../src'
 import { IMatchResult } from '../../types'
 

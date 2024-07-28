@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es5",
+        "module": "ESNext",
+        "target": "ESNext",
         "sourceMap": true,
+        "moduleResolution": "NodeNext",
         "typeRoots": ["node_modules/@types", "./types"]
     },
     "exclude": ["node_modules"]
