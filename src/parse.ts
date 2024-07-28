@@ -1,5 +1,5 @@
 //type
-import Type from './key'
+import { Type } from './key'
 import Matcher from './matcher'
 import { IMatcher } from '../types'
 
@@ -39,7 +39,7 @@ function spreadSet(matcher: IMatcher): void {
             }
             // debugger
             if (value !== '-' || i === 0) {
-                newChildren.push(v => {
+                newChildren.push((v) => {
                     if (isIgnoreCase && v) {
                         v = v.toLowerCase()
                     }
@@ -66,7 +66,7 @@ function spreadSet(matcher: IMatcher): void {
                     )
                 }
 
-                newChildren.push(v => {
+                newChildren.push((v) => {
                     if (isIgnoreCase) {
                         v = v.toLowerCase()
                     }
@@ -132,7 +132,7 @@ function isQuantifierValid(matcher, quantifier?): boolean {
  * @param ctx
  * @returns {Array}
  */
-export default ctx => {
+export default (ctx) => {
     const pattern = ctx.pattern
     const len = pattern.length
     let isInCharacterSet = false
@@ -231,7 +231,7 @@ export default ctx => {
         } else if (isDigit(c) && c !== '0') {
             let num = ''
 
-            while (1) {
+            while (true) {
                 if (isDigit(pattern[i])) {
                     num += pattern[i]
                     i++
@@ -346,7 +346,7 @@ export default ctx => {
                     )
                 }
 
-                while (1) {
+                while (true) {
                     if (curMatcher.isRoot) {
                         break
                     }

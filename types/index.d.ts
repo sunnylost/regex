@@ -1,4 +1,4 @@
-import Type from '../src/key'
+import { Type } from '../src/key'
 
 export declare interface IQuantifier {
     min: number

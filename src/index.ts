@@ -56,7 +56,7 @@ class Re implements IRe {
         ;({ states: this.states, groups: this.groups } = Parse(this))
     }
 
-    match(source) {
+    match(source: string) {
         this.source = source
         const states = this.states
         const traceStack = this.traceStack
@@ -147,7 +147,7 @@ class Re implements IRe {
         }
     }
 
-    test(source): boolean {
+    test(source: string) {
         const result = this.match(source)
 
         return !!(result && result.length)

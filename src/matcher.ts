@@ -1,8 +1,8 @@
-import Type from './key'
+import { Type } from './key'
 import { IMatcher } from '../types'
 
 const matchCharacters = (cs: string[]) => {
-    return (c: string): boolean => {
+    return (c: string) => {
         for (let i = 0; i < cs.length; i++) {
             const arr = cs[i].split('-')
 
@@ -20,8 +20,8 @@ const matchCharacters = (cs: string[]) => {
     }
 }
 
-const not = fn => {
-    return function(...args): boolean {
+const not = (fn) => {
+    return function (...args): boolean {
         return !fn.apply(this, args)
     }
 }
@@ -91,7 +91,7 @@ function merge(leastMatch, localMatch): object {
     }
 }
 
-function isInWordCharacters(c): boolean {
+function isInWordCharacters(c: string) {
     return (
         (c >= 'a' && c <= 'z') ||
         (c >= 'A' && c <= 'Z') ||
@@ -100,11 +100,11 @@ function isInWordCharacters(c): boolean {
     )
 }
 
-function isContainerType(type: string): boolean {
+function isContainerType(type: string) {
     return type === Type.GROUP || type === Type.OR
 }
 
-class Matcher implements IMatcher {
+export default class Matcher implements IMatcher {
     type
     value
     isRoot = false
@@ -189,8 +189,8 @@ class Matcher implements IMatcher {
                     if (result.isMatched) {
                         index += result.matchedStr.length
                         leastMatchResult.isMatched = true
-                        leastMatchResult.groupMatchedStr = leastMatchResult.matchedStr +=
-                            result.matchedStr
+                        leastMatchResult.groupMatchedStr =
+                            leastMatchResult.matchedStr += result.matchedStr
                         leastMatchResult.index = index
                     } else {
                         //match failed
@@ -237,13 +237,14 @@ class Matcher implements IMatcher {
             } else {
                 if (min === 0) {
                     traceStack.push(this)
-                    return (this.matchResult = this.leastMatchResult = {
-                        isMatched: true,
-                        config,
-                        matchedStr: '',
-                        groupMatchedStr: '',
-                        index
-                    })
+                    return (this.matchResult = this.leastMatchResult =
+                        {
+                            isMatched: true,
+                            config,
+                            matchedStr: '',
+                            groupMatchedStr: '',
+                            index
+                        })
                 } else {
                     const leastMatchResult = (this.leastMatchResult = {
                         isMatched: true,
@@ -580,7 +581,7 @@ class Matcher implements IMatcher {
             case Type.GROUP:
                 return (
                     '(' +
-                    this.children.map(v => v.toString()).join('') +
+                    this.children.map((v) => v.toString()).join('') +
                     ')' +
                     quantifierToString()
                 )
@@ -590,5 +591,3 @@ class Matcher implements IMatcher {
         }
     }
 }
-
-export default Matcher
